@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">image</string>
+    <string name="normal_load">正在加载</string>
+    <string name="network_error">发生错误</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="nor_more">没有数据</string>
+    <string name="edit_rule">编辑当前规则</string>
+    <string name="add_rule">自定义规则</string>
+    <string name="add_local_rule">添加本地规则</string>
+    <string name="net_add_rule">添加网络规则</string>
+    <string name="copy_rule">复制当前规则</string>
+    <string name="save_pos">保存位置</string>
+
+
+    <!--    rule -->
+    <string name="rule_name">源名称</string>
+    <string name="rule_url">源地址</string>
+    <string name="rule_sort">分类</string>
+    <string name="rule_home_list">首页图片列表(homeList)</string>
+    <string name="rule_home_href">链接规则(homeHref)</string>
+    <string name="rule_home_src">图片url规则(homeSrc)</string>
+    <string name="rule_home_title">标题规则(homeTitle)</string>
+    <string name="rule_img_page_list">图片内容显示(imagePageList)</string>
+    <string name="rule_img_page_src">图片url(显示图片页)规则(imagePageSrc)</string>
+    <string name="rule_method">请求方法(get/post)</string>
+    <string name="rule_cookie">cookie(用于登录)</string>
+    <string name="rule_add_js">添加js库</string>
+    <string name="rule_js_method">js请求方法(用于post请求)</string>
+    <string name="replace_home_src">首页图片替换规则js</string>
+    <string name="replace_page_src">图片列表页图片替换规则</string>
+    <string name="paste_rule">黏贴规则</string>
+    <string name="save_rule">保存规则</string>
+    <string name="debug_rule">debug</string>
+
+    <string name="net_add_rule_title">请输入网址</string>
+    <string name="net_add_rule_ok">确定</string>
+    <string name="net_add_rule_cancel">取消</string>
+    <string name="open_browser">在浏览器打开</string>
+    <string name="switchover_layout">切换布局</string>
+</resources>
