@@ -5,11 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.view.image.databinding.FragmentRuleBinding
 import com.view.image.model.Rule
+import com.view.image.model.RuleActivityViewModel
 
 class RuleFragment : Fragment() {
     lateinit var binding: FragmentRuleBinding
+    lateinit var viewModel: RuleActivityViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -20,10 +23,19 @@ class RuleFragment : Fragment() {
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         val rule = activity?.intent?.getSerializableExtra("rule") as Rule
-        showRule(rule)
+
+        viewModel = ViewModelProvider(activity ?: this).get(RuleActivityViewModel::class.java)
+        viewModel.ruleLiveData.observe(viewLifecycleOwner, {
+            showRule(it)
+        })
+        viewModel.ruleLiveData.value = rule
+
+        viewModel.isGetRuleLive.observe(viewLifecycleOwner, {
+            viewModel.ruleLiveData.value = getEditRule()
+        })
     }
 
     private fun showRule(rule: Rule) {
@@ -50,7 +62,7 @@ class RuleFragment : Fragment() {
 
     }
 
-    private fun getEditRule() {
+    private fun getEditRule(): Rule {
         val rule = Rule()
         rule.apply {
             sourceName = binding.ruleName.text.toString()
@@ -72,6 +84,7 @@ class RuleFragment : Fragment() {
             js = binding.ruleAddJs.text.toString()
             jsMethod = binding.ruleJsMethod.text.toString()
         }
+        return rule
     }
 
 }

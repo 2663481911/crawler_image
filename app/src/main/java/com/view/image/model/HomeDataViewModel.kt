@@ -15,7 +15,7 @@ import kotlin.concurrent.thread
 
 const val DATA_STATUS_NETWORK_ERROR = 404    // 网络错误
 const val DATA_STATUS_LOAD_NORMAL = 200   // 正常加载
-const val DATA_STATUS_NOR_MORE = 204
+const val DATA_STATUS_NOR_MORE = 204   // 没有数据
 
 class HomeDataViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -35,6 +35,9 @@ class HomeDataViewModel(application: Application) : AndroidViewModel(application
     var isBeGetVale = false   // 正在加载数据，防止多次加载
     private var _pageNum = MutableLiveData(1)   // 页码
 
+    fun clearImageUrl() {
+        _photoListLive.value = null
+    }
 
     fun getImgUrlList(html: String): MutableList<Any?>? {
         return ruleUtil?.getImgList(html)
@@ -60,6 +63,7 @@ class HomeDataViewModel(application: Application) : AndroidViewModel(application
                 _dataStatusLive.postValue(DATA_STATUS_NOR_MORE)
                 return
             }
+
             Log.d("homeDataList", homeDataList.size.toString())
             val values = when {
                 !isRefresh -> {       // 不是顶部刷新

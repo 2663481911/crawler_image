@@ -16,7 +16,7 @@ import com.view.image.databinding.FragmentHomeDataShowBinding
 import com.view.image.model.DATA_STATUS_NETWORK_ERROR
 import com.view.image.model.HomeData
 import com.view.image.model.HomeDataViewModel
-import com.view.image.model.RuleViewModel
+import com.view.image.model.HomeRuleViewModel
 
 class HomeDataShowFragment : Fragment() {
     lateinit var fragmentBinding: FragmentHomeDataShowBinding
@@ -43,7 +43,7 @@ class HomeDataShowFragment : Fragment() {
 
         val homeDataViewModel =
             ViewModelProvider(activity ?: this).get(HomeDataViewModel::class.java)
-        val ruleViewModel = ViewModelProvider(activity ?: this).get(RuleViewModel::class.java)
+        val ruleViewModel = ViewModelProvider(activity ?: this).get(HomeRuleViewModel::class.java)
 
         homeDataShowAdapter.setOnClickListener(object : HomeDataShowAdapter.ClickListener {
             override fun setOnClickListener(view: View, data: HomeData) {
@@ -58,7 +58,7 @@ class HomeDataShowFragment : Fragment() {
         //观察数据变化
         homeDataViewModel.photoListLive.observe(this.viewLifecycleOwner, {
             homeDataShowAdapter.submitList(it)
-            if (homeDataViewModel.isRefresh)
+            if (homeDataViewModel.isRefresh || homeDataViewModel.pageNum.value == 1)
                 fragmentBinding.recyclerView.scrollToPosition(0)
             fragmentBinding.gallerySwipe.isRefreshing = false
         }
@@ -75,6 +75,8 @@ class HomeDataShowFragment : Fragment() {
 
         // 第一次加载数据
         homeDataViewModel.dataUrl.observe(this.viewLifecycleOwner, {
+//            fragmentBinding.recyclerView.scrollToPosition(0)
+            homeDataViewModel.clearImageUrl()
             homeDataViewModel.isRefresh = true
             homeDataViewModel.setPageNum(1)
             homeDataViewModel.getHomeDataList()
@@ -89,6 +91,9 @@ class HomeDataShowFragment : Fragment() {
         fragmentBinding.gallerySwipe.setOnRefreshListener {
             homeDataViewModel.isRefresh = true
             homeDataViewModel.getHomeDataList()
+            if (homeDataViewModel.pageNum.value == 1 && homeDataViewModel.photoListLive.value?.isEmpty() == true) {
+//                homeDataViewModel.isRefresh = false
+            }
         }
 
         // 底部刷新

@@ -177,8 +177,12 @@ class AnalyzeRule : AnalyzeRuleDao {
 
 
 fun main() {
-    val document = Jsoup.connect("http://www.zdqx.com/html/hotlist-2.html").get()
-    val elements = AnalyzeRule().analyzeRuleByXpath("//*[@class='listbox']", document)
-    println(AnalyzeRule().analyzeRuleByJSoup("img@abs:src", elements))
+    val document = Jsoup.connect("https://www.hexuexiao.cn/meinv/guzhuang/list-2.html").get()
+    println(document)
+    val elements =
+        AnalyzeRule().analyzeRuleByJSoup("div[class=\"waterfall_warp\"] div[class=\"waterfall_1box\"] dd",
+            document)
+    println(elements)
+//    println(AnalyzeRule().analyzeRuleByJSoup("img@abs:src", elements))
 
 }

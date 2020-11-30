@@ -107,18 +107,22 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
     fun getSortMap(): Map<String, String> {
         val sortMap = HashMap<String, String>()
         if (rule.reqMethod.toLowerCase(Locale.ROOT) == "get") {
-            val sortList = rule.sortUrl.split("\n")
+            val sortList = rule.sortUrl.trim().split("\n")
             for (sort in sortList) {
-                val list = sort.split("::")
-                sortMap[list[0]] = list[1]
+                sort.trim().split("::").also {
+                    println(sort)
+                    if (it.size == 2)
+                        sortMap[it[0].trim()] = it[1].trim()
+                }
+
             }
         } else {
-            for (sort in rule.sortUrl.split("\n")) {
-                sort.split("::", limit = 2).also { sortList ->
+            for (sort in rule.sortUrl.trim().split("\n")) {
+                sort.trim().split("::", limit = 2).also { sortList ->
                     if (sortList.size == 2)
-                        sortList[1].split(",", limit = 2).also {
+                        sortList[1].trim().split(",", limit = 2).also {
                             Log.d("data", it.size.toString() + it.toString())
-                            if (it.size == 2) sortMap[sortList[0]] = it[0]
+                            if (it.size == 2) sortMap[sortList[0]] = it[0].trim()
                         }
                 }
             }
@@ -254,15 +258,15 @@ fun main() {
     rule.imageUrlReplaceByJS = "imgSrc = 'http://imgoss.cnu.cc/' + imgSrc;"
     val ruleUtil = RuleUtil(rule, AnalyzeRule())
 
-//    val document = Jsoup.connect("http://www.cnu.cc/inspirationPage/recent-0").get().html()
-//    val dataList = ruleUtil.getHomeDataList(document)
-//    for(data in dataList){
-//        println(data.imgSrc + data.imgTitle + data.href )
-//    }
-    val imgHtml = Jsoup.connect("http://www.cnu.cc/works/430080").get().html()
-    println(ruleUtil.getImgList(imgHtml))
-//    val jxDocument = JXDocument.create(elements)
-//    println(elements)
-//    println(jxDocument.selN("//a/@href").toTypedArray())
-//    println(str)
+    val document = Jsoup.connect("http://www.cnu.cc/inspirationPage/recent-0").get().html()
+    val dataList = ruleUtil.getHomeDataList(document)
+    for (data in dataList) {
+        println(data.imgSrc + data.imgTitle + data.href)
+    }
+//    val imgHtml = Jsoup.connect("http://www.cnu.cc/works/430080").get().html()
+//    println(ruleUtil.getImgList(imgHtml))
+////    val jxDocument = JXDocument.create(elements)
+////    println(elements)
+////    println(jxDocument.selN("//a/@href").toTypedArray())
+////    println(str)
 }

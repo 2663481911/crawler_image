@@ -1,6 +1,7 @@
 package com.view.image.fragment
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -14,14 +15,13 @@ import androidx.lifecycle.ViewModelProvider
 import com.view.image.R
 import com.view.image.activity.RuleActivity
 import com.view.image.databinding.FragmentToolbarBinding
-import com.view.image.model.Rule
-import com.view.image.model.RuleViewModel
+import com.view.image.model.*
 
 
 class ToolbarFragment : Fragment() {
 
     lateinit var binding: FragmentToolbarBinding
-    lateinit var ruleViewModel: RuleViewModel
+    lateinit var homeRuleViewModel: HomeRuleViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +33,7 @@ class ToolbarFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         // Inflate the layout for this fragment
-        ruleViewModel = ViewModelProvider(activity ?: this).get(RuleViewModel::class.java)
+        homeRuleViewModel = ViewModelProvider(activity ?: this).get(HomeRuleViewModel::class.java)
         binding = FragmentToolbarBinding.inflate(layoutInflater)
         return binding.root
     }
@@ -58,28 +58,40 @@ class ToolbarFragment : Fragment() {
         when (item.itemId) {
             android.R.id.home -> activity?.findViewById<DrawerLayout>(R.id.home_drawer_layout)
                 ?.openDrawer(GravityCompat.START)
-            R.id.edit_rule -> {
+            R.id.edit_cur_rule -> {
                 Intent(context, RuleActivity::class.java).apply {
-                    putExtra("rule", ruleViewModel.ruleLive.value)
-                    startActivity(this)
+                    putExtra("rule", homeRuleViewModel.ruleLive.value)
+                    putExtra("code", EDIT_RULE_CODE)
+                    startActivityForResult(this, EDIT_RULE_CODE)
                 }
             }
             R.id.add_rule -> {
                 Intent(context, RuleActivity::class.java).apply {
                     putExtra("rule", Rule())
-                    startActivity(this)
+                    putExtra("code", ADD_RULE_CODE)
+                    startActivityForResult(this, ADD_RULE_CODE)
                 }
             }
 
             R.id.add_net_rule -> {
-                inputTitleDialog()
+                inputTitleDialog(requireContext())
             }
+
+            R.id.add_local_rule -> {
+                activity?.let { MyPermissions.askPermissions(it) }
+                val intent = Intent(Intent.ACTION_GET_CONTENT)
+                intent.type = "*/*"
+                intent.addCategory(Intent.CATEGORY_OPENABLE)
+                startActivityForResult(intent, 2)
+            }
+
         }
         return true
     }
 
+
     //弹出输入框
-    private fun inputTitleDialog() {
+    private fun inputTitleDialog(context: Context) {
         val inputServer = EditText(context)
         inputServer.isFocusable = true
         val builder: AlertDialog.Builder = AlertDialog.Builder(context)
@@ -94,5 +106,6 @@ class ToolbarFragment : Fragment() {
             }
         builder.show()
     }
+
 
 }

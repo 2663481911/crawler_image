@@ -14,7 +14,7 @@ import com.view.image.analyzeRule.AnalyzeRule
 import com.view.image.analyzeRule.RuleUtil
 import com.view.image.databinding.FragmentHomeSpinnerBinding
 import com.view.image.model.HomeDataViewModel
-import com.view.image.model.RuleViewModel
+import com.view.image.model.HomeRuleViewModel
 
 
 class HomeSpinnerFragment : Fragment() {
@@ -53,16 +53,16 @@ class HomeSpinnerFragment : Fragment() {
             false
         }
 
-        val ruleViewModel = ViewModelProvider(activity ?: this).get(RuleViewModel::class.java)
+        val ruleViewModel = ViewModelProvider(activity ?: this).get(HomeRuleViewModel::class.java)
         var sortMap: Map<String, String>? = null
 
         ruleViewModel.ruleLive.observe(this.viewLifecycleOwner, {
+            activity?.title = it.sourceName
             Log.d("rule", it.homeList)
             val ruleUtil = RuleUtil(it, AnalyzeRule())
             homeDataViewModel.setRuleUtil(ruleUtil)
             sortMap = ruleUtil.getSortMap()
             updateSpinner(sortMap!!.keys.toList())
-
         })
 //        val rules = readJson()
 

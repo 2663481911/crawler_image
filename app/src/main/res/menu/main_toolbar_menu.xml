@@ -2,16 +2,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/edit_rule"
+        android:id="@+id/edit_cur_rule"
         android:icon="@drawable/edit"
-        android:title="@string/edit_rule"
+        android:title="@string/edit_cur_rule"
         app:showAsAction="ifRoom" />
-
-
+    
     <item
         android:id="@+id/add_rule"
         android:icon="@android:drawable/ic_menu_add"
         android:title="@string/add_rule" />
+
     <item
         android:id="@+id/add_local_rule"
         android:title="@string/add_local_rule"
@@ -31,5 +31,10 @@
         android:id="@+id/save_pos"
         android:title="@string/save_pos"
         app:showAsAction="withText" />
+
+    <item
+        android:id="@+id/edit_rule"
+        android:icon="@android:drawable/ic_menu_add"
+        android:title="@string/edit_rule" />
 
 </menu>
