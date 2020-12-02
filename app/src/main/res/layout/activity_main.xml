@@ -17,7 +17,7 @@
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/toolbar_fragment"
-                android:name="com.view.image.fragment.ToolbarFragment"
+                android:name="com.view.image.fragment.HomeToolbarFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:layout_scrollFlags="scroll|enterAlways" />
@@ -36,10 +36,11 @@
                 android:layout_height="wrap_content" />
 
             <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/fragment"
+                android:id="@+id/home_fragment"
                 android:name="com.view.image.fragment.HomeDataShowFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
+
 
         </LinearLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

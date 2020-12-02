@@ -36,7 +36,7 @@ class GalleryViewModel : ViewModel() {
     }
 
     fun getImgList(href: String) {
-        NetWork.get(href, object : NetWork.NetWorkCall {
+        NetWork.get(href, ruleLive.value!!.cookie, object : NetWork.NetWorkCall {
             override fun onFailure(call: Call, e: IOException) {
                 TODO("Not yet implemented")
             }

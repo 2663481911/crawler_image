@@ -7,7 +7,7 @@
     tools:context=".fragment.HomeSpinnerFragment">
 
     <Spinner
-        android:id="@+id/spinner"
+        android:id="@+id/spinner_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="3" />

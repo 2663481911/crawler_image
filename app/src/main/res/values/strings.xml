@@ -1,10 +1,10 @@
 <resources>
     <string name="app_name">image</string>
-    <string name="normal_load">正在加载</string>
-    <string name="network_error">发生错误</string>
+    <string name="normal_load">正在加载...</string>
+    <string name="network_error">发生错误...</string>
+    <string name="nor_more">没有数据...</string>
+
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="nor_more">没有数据</string>
     <string name="edit_cur_rule">编辑当前规则</string>
     <string name="add_rule">自定义规则</string>
     <string name="add_local_rule">添加本地规则</string>
@@ -39,4 +39,12 @@
     <string name="open_browser">在浏览器打开</string>
     <string name="switchover_layout">切换布局</string>
     <string name="edit_rule">编辑规则</string>
+    <string name="down">下载</string>
+    <string name="shave">分享</string>
+    <string name="make">使用</string>
+    <string name="back">返回</string>
+    <string name="remove">删除</string>
+    <string name="to_top">置顶</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

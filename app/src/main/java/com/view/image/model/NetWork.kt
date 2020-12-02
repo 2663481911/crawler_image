@@ -6,11 +6,12 @@ import org.json.JSONObject
 import java.io.IOException
 
 object NetWork {
-    fun get(url: String, netWorkCall: NetWorkCall) {
+    fun get(url: String, cookie: String, netWorkCall: NetWorkCall) {
         val okHttpClient = OkHttpClient()
         val request: Request =
             Request.Builder()
                 .url(url)
+                .header("Cookie", cookie)
                 .build()
         val call: Call = okHttpClient.newCall(request)
         call.enqueue(object : Callback {
@@ -24,7 +25,7 @@ object NetWork {
         })
     }
 
-    fun post(url: String, data: String, netWorkCall: NetWorkCall) {
+    fun post(url: String, data: String, cookie: String, netWorkCall: NetWorkCall) {
         try {
             val okHttpClient = OkHttpClient().newBuilder().build()
             //    val map = Gson().fromJson<Map<String, Any>>(dataJson, Map::class.java)
@@ -39,6 +40,7 @@ object NetWork {
             val request: Request = Request.Builder()
                 .post(requestBody)
                 .url(url)
+                .header("Cookie", cookie)
                 .build()
             val call: Call = okHttpClient.newCall(request)
             call.enqueue(object : Callback {

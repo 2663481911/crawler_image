@@ -43,7 +43,7 @@ class HomeDataShowAdapter :
                     }
                 }
         else
-            LayoutInflater.from(parent.context).inflate(R.layout.home_data_item, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.item_home_data, parent, false)
 
         return HomeViewHolder(itemView)
     }
@@ -84,8 +84,6 @@ class HomeDataShowAdapter :
                 .placeholder(R.drawable.ic_launcher_foreground)
                 .into(imageView)
 
-
-//            textView.text = getItem(position).imgTitle
 
             holder.itemView.findViewById<ImageView>(R.id.image_view).setOnClickListener {
                 listener?.setOnClickListener(it, getItem(position))

@@ -3,6 +3,7 @@ package com.view.image.fragment
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -55,6 +56,9 @@ class HomeDataShowFragment : Fragment() {
             }
 
         })
+        if (homeDataViewModel.photoListLive.value.isNullOrEmpty()) {
+            homeDataShowAdapter.submitList(homeDataViewModel.photoListLive.value)
+        }
         //观察数据变化
         homeDataViewModel.photoListLive.observe(this.viewLifecycleOwner, {
             homeDataShowAdapter.submitList(it)
@@ -75,6 +79,7 @@ class HomeDataShowFragment : Fragment() {
 
         // 第一次加载数据
         homeDataViewModel.dataUrl.observe(this.viewLifecycleOwner, {
+            Log.d("url", it)
 //            fragmentBinding.recyclerView.scrollToPosition(0)
             homeDataViewModel.clearImageUrl()
             homeDataViewModel.isRefresh = true
@@ -91,9 +96,6 @@ class HomeDataShowFragment : Fragment() {
         fragmentBinding.gallerySwipe.setOnRefreshListener {
             homeDataViewModel.isRefresh = true
             homeDataViewModel.getHomeDataList()
-            if (homeDataViewModel.pageNum.value == 1 && homeDataViewModel.photoListLive.value?.isEmpty() == true) {
-//                homeDataViewModel.isRefresh = false
-            }
         }
 
         // 底部刷新

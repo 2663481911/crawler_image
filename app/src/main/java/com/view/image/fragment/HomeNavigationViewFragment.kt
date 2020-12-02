@@ -23,6 +23,7 @@ class HomeNavigationViewFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         // Inflate the layout for this fragment
+        Log.d("HomeNavigationView", "onCreateView")
         viewBinding = FragmentHomeNavigationViewBinding.inflate(layoutInflater)
         return viewBinding.root
     }
@@ -30,9 +31,9 @@ class HomeNavigationViewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         homeRuleViewModel = ViewModelProvider(activity ?: this).get(HomeRuleViewModel::class.java)
-        homeRuleViewModel.readRule()
+        homeRuleViewModel.loadRuleList()
         viewBinding.navigation.setNavigationItemSelectedListener {
-            homeRuleViewModel.setRule(it.title.toString(), it.itemId)
+            homeRuleViewModel.setRule(it.itemId)
             true
         }
     }
@@ -40,7 +41,7 @@ class HomeNavigationViewFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        Log.d("onStart", "onStart")
+        Log.d("HomeNavigationView", "onStart")
 //        homeRuleViewModel.readRule()
         homeRuleViewModel.ruleListLive.observe(viewLifecycleOwner, {
             val ruleNameList = homeRuleViewModel.getRuleNameList()
@@ -61,8 +62,7 @@ class HomeNavigationViewFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
         Log.d("Toolbar_code", resultCode.toString())
         when (resultCode) {
-            SAVE_RULE_CODE -> homeRuleViewModel.readRule()
-
+            SAVE_RULE_CODE -> homeRuleViewModel.loadRuleList(true)
         }
     }
 }

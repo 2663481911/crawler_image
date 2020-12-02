@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.view.image.analyzeRule.AnalyzeRule
 import com.view.image.analyzeRule.RuleUtil
 import com.view.image.model.NetWork.NetWorkCall
 import okhttp3.Call
@@ -47,12 +48,16 @@ class HomeDataViewModel(application: Application) : AndroidViewModel(application
         _pageNum.value = num
     }
 
-    fun setUrl(url: String) {
-        _dataUrl.value = url
+    fun setUrl(name: String) {
+        _dataUrl.value = ruleUtil!!.getSortMap()[name]
     }
 
-    fun setRuleUtil(ruleUtil: RuleUtil) {
-        this.ruleUtil = ruleUtil
+    fun getSortNameList(): Set<String>? {
+        return ruleUtil?.getSortMap()?.keys
+    }
+
+    fun setRuleUtil(rule: Rule) {
+        this.ruleUtil = RuleUtil(rule, AnalyzeRule())
     }
 
     // 获取html后的回调
@@ -90,7 +95,7 @@ class HomeDataViewModel(application: Application) : AndroidViewModel(application
         isBeGetVale = true
         if (ruleUtil?.getRuleReqMethod()?.toLowerCase(Locale.ROOT) == "get") {
             dataUrl.value?.replace("@page", _pageNum.value.toString())?.let {
-                NetWork.get(it, object : NetWorkCall {
+                NetWork.get(it, ruleUtil!!.getCooke(), object : NetWorkCall {
                     override fun onFailure(call: Call, e: IOException) {
                         onCallFailure(call, e)
                     }
@@ -104,7 +109,7 @@ class HomeDataViewModel(application: Application) : AndroidViewModel(application
             dataUrl.value?.replace("@page", _pageNum.value.toString())?.let {
                 thread {
                     val data = ruleUtil?.getNewData(_dataUrl.value!!, _pageNum.value!!)
-                    NetWork.post(it, data!!, object : NetWorkCall {
+                    NetWork.post(it, data!!, ruleUtil!!.getCooke(), object : NetWorkCall {
                         override fun onFailure(call: Call, e: IOException) {
                             onCallFailure(call, e)
                         }

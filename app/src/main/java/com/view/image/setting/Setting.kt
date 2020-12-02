@@ -1,7 +1,7 @@
 package com.view.image.setting
 
 import android.content.Context
-import com.view.image.setting.RuleFile.saveFile
+import com.view.image.fileUtil.RuleFile.saveFile
 import java.io.File
 import java.io.IOException
 

@@ -30,6 +30,7 @@ class GalleryActivity : AppCompatActivity() {
         galleryViewModel.setRule(rule)
 
         val galleryAdapter = GalleryAdapter()
+
         galleryViewModel.imgUrlListLive.observe(this, {
             binding.recyclerView.apply {
                 layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
@@ -47,6 +48,7 @@ class GalleryActivity : AppCompatActivity() {
                 Intent(this@GalleryActivity, PhotoActivity::class.java).apply {
                     putStringArrayListExtra("urlList", galleryViewModel.imgUrlListLive.value)
                     putExtra("pos", position)
+                    putExtra("name", data.imgTitle)
                     startActivity(this)
                 }
             }

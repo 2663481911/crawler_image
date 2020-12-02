@@ -25,19 +25,27 @@ class RuleFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val rule = activity?.intent?.getSerializableExtra("rule") as Rule
+        activity?.title = rule.sourceName
+
 
         viewModel = ViewModelProvider(activity ?: this).get(RuleActivityViewModel::class.java)
+        // 观察rule的变化，把rule显示在页面上
         viewModel.ruleLiveData.observe(viewLifecycleOwner, {
             showRule(it)
         })
         viewModel.ruleLiveData.value = rule
 
+        // 点击保存按钮时获取页面上的rule数据
         viewModel.isGetRuleLive.observe(viewLifecycleOwner, {
             viewModel.ruleLiveData.value = getEditRule()
         })
     }
 
+    /**
+     * 显示规则在页面上
+     */
     private fun showRule(rule: Rule) {
         binding.apply {
             ruleName.setText(rule.sourceName)
@@ -62,6 +70,9 @@ class RuleFragment : Fragment() {
 
     }
 
+    /**
+     * 获取页面上的规则
+     */
     private fun getEditRule(): Rule {
         val rule = Rule()
         rule.apply {

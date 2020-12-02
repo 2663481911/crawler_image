@@ -11,9 +11,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.gson.Gson
 import com.view.image.R
 import com.view.image.databinding.FragmentToolbarBinding
+import com.view.image.fileUtil.ClipBoar
+import com.view.image.fileUtil.RuleFile
 import com.view.image.model.*
-import com.view.image.setting.ClipBoar
-import com.view.image.setting.RuleFile
 
 
 class RuleToolbarFragment : Fragment() {
@@ -69,7 +69,7 @@ class RuleToolbarFragment : Fragment() {
             }
 
             R.id.save_rule -> {
-                viewModel.isGetRuleLive.value = 1
+                viewModel.isGetRuleLive.value = true
                 val rule = viewModel.ruleLiveData.value
                 when (requestCode) {
                     ADD_RULE_CODE -> {
@@ -98,7 +98,8 @@ class RuleToolbarFragment : Fragment() {
             }
             R.id.copy_rule -> {
                 val rule = activity?.intent?.getSerializableExtra("rule") as Rule
-                ClipBoar.putTextIntoClip(requireContext(), rule.toString())
+//                ClipBoar.putTextIntoClip(requireContext(), rule.toString())
+                ClipBoar.putTextIntoClip(requireContext(), Gson().toJson(rule).toString())
                 Toast.makeText(requireContext(), "复制成功", Toast.LENGTH_SHORT).show()
             }
         }

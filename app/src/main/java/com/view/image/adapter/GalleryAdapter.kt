@@ -25,7 +25,7 @@ class GalleryAdapter : ListAdapter<String, GalleryAdapter.GalleryViewHolder>(Dif
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GalleryViewHolder {
         val itemView =
-            LayoutInflater.from(parent.context).inflate(R.layout.gallery_item, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.item_gallery, parent, false)
 
         return GalleryViewHolder(itemView)
     }

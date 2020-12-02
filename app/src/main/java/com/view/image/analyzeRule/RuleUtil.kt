@@ -32,6 +32,7 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
     private val ruleJson = "@JSON"
     private val ruleXpath = "@XPATH"
 
+
     /**
      * 设置请求的地址，获取绝对地址时可能有用
      */
@@ -242,6 +243,10 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
      */
     private fun imgSrcReplaceByJS(jsStr: String, imgSrc: String): String {
         return engine.let { analyzeRuleDao.analyzeByJsReplace(jsStr, imgSrc, it) }
+    }
+
+    fun getCooke(): String {
+        return rule.cookie
     }
 
 }

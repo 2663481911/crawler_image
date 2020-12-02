@@ -14,7 +14,7 @@ class PagerPhotoAdapter(private val urlList: List<String>) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PagePhotoViewHolder {
         // 添加控件
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.photo_view_item, parent, false)
+            .inflate(R.layout.item_photo_view, parent, false)
         return PagePhotoViewHolder(view)
     }
 
