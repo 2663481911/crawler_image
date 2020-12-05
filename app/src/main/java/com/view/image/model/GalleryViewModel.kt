@@ -21,6 +21,8 @@ class GalleryViewModel : ViewModel() {
     val ruleLive: LiveData<Rule>
         get() = _ruleLive
 
+    private val hrefListLive = MutableLiveData<ArrayList<String>>()
+
     private var ruleUtil: RuleUtil? = null
 
     fun setRule(rule: Rule) {
@@ -36,18 +38,40 @@ class GalleryViewModel : ViewModel() {
     }
 
     fun getImgList(href: String) {
+        if (hrefListLive.value.isNullOrEmpty()) {
+            hrefListLive.postValue(arrayListOf(href))
+        } else {
+            val arrayListOf = hrefListLive.value
+            arrayListOf?.add(href)
+            hrefListLive.postValue(arrayListOf)
+        }
         NetWork.get(href, ruleLive.value!!.cookie, object : NetWork.NetWorkCall {
             override fun onFailure(call: Call, e: IOException) {
-                TODO("Not yet implemented")
+                e.printStackTrace()
             }
 
             override fun onResponse(call: Call, response: Response) {
                 ruleUtil?.setRequestUrl(href)
-                _imgUrlListLive.postValue(response.body?.string()
-                    ?.let { ruleUtil?.getImgList(it) } as ArrayList<String>)
+                response.body?.string()?.let {
+                    val arrayList = ruleUtil?.getImgList(it) as ArrayList<String>
+                    if (arrayList.isNotEmpty()) {
+                        if (!_imgUrlListLive.value.isNullOrEmpty()) {
+                            val toMutableList = _imgUrlListLive.value?.toMutableList()
+                            toMutableList?.addAll(arrayList)
+                            _imgUrlListLive.postValue(toMutableList as ArrayList<String>?)
+//                            _imgUrlListLive.value!!.addAll(arrayList)
+
+                        } else _imgUrlListLive.postValue(arrayList)
+
+
+                        // 获取下一页
+                        ruleUtil?.getImageNextPageHref(it, hrefLive.value!!)?.let { it1 ->
+                            if (hrefListLive.value?.contains(it1) != true)
+                                getImgList(it1)
+                        }
+                    }
+                }
             }
-
-
         })
     }
 

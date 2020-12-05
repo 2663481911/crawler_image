@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_marginTop="1dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/background">
+
+    <TextView
+        android:layout_alignParentLeft="true"
+        android:id="@+id/edit_rule_name"
+        android:layout_width="wrap_content"
+        android:layout_height="@android:dimen/app_icon_size"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="15dp"
+        android:gravity="center"
+        android:text="@string/add_local_rule"
+        tools:ignore="RelativeOverlap" />
+
+    <LinearLayout
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/background">
+
+        <ImageButton
+            android:layout_marginRight="10dp"
+            android:backgroundTint="@color/background"
+            android:id="@+id/top_image_view"
+            android:contentDescription="@string/to_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/top"
+            tools:targetApi="lollipop" />
+
+        <ImageButton
+            android:backgroundTint="@color/background"
+            android:id="@+id/edit_image_view"
+            android:contentDescription="@string/edit_cur_rule"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/edit"
+            tools:targetApi="lollipop" />
+
+        <ImageButton
+            android:backgroundTint="@color/background"
+            android:id="@+id/remove_image_view"
+            android:layout_marginStart="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="10dp"
+            android:contentDescription="@string/remove"
+            android:src="@drawable/remove"
+            tools:targetApi="lollipop" />
+    </LinearLayout>
+</RelativeLayout>

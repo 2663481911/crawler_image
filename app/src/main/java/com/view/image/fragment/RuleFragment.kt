@@ -61,6 +61,7 @@ class RuleFragment : Fragment() {
 
             ruleImgPageList.setText(rule.imagePageList)
             ruleImgPageSrc.setText(rule.imagePageSrc)
+            ruleImgNextPage.setText(rule.imageNextPage)
             replacePageSrc.setText(rule.imageUrlReplaceByJS)
 
             ruleCookie.setText(rule.cookie)
@@ -89,6 +90,7 @@ class RuleFragment : Fragment() {
 
             imagePageList = binding.ruleImgPageList.text.toString()
             imagePageSrc = binding.ruleImgPageSrc.text.toString()
+            imageNextPage = binding.ruleImgNextPage.text.toString()
             imageUrlReplaceByJS = binding.replacePageSrc.text.toString()
 
             cookie = binding.ruleCookie.text.toString()

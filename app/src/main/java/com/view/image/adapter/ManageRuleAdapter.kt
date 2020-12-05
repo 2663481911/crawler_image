@@ -19,7 +19,7 @@ class ManageRuleAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ManageRuleHolder {
         val itemView =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_edit_rule, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.item_manage_rule, parent, false)
         return ManageRuleHolder(itemView)
     }
 

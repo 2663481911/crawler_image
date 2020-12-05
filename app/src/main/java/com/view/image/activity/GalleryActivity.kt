@@ -41,13 +41,13 @@ class GalleryActivity : AppCompatActivity() {
 
         galleryViewModel.setRule(rule)
         val galleryAdapter = GalleryAdapter()
+        binding.recyclerView.apply {
+            layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+            adapter = galleryAdapter
+        }
 
         galleryViewModel.imgUrlListLive.observe(this, {
-            binding.recyclerView.apply {
-                layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-                adapter = galleryAdapter
-                galleryAdapter.submitList(it)
-            }
+            galleryAdapter.submitList(it)
         })
 
         galleryViewModel.hrefLive.observe(this, {

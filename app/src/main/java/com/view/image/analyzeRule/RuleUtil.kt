@@ -6,6 +6,7 @@ import com.view.image.model.HomeData
 import com.view.image.model.Rule
 import org.jsoup.Jsoup
 import java.util.*
+import java.util.regex.Pattern
 import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
 import kotlin.collections.ArrayList
@@ -23,7 +24,6 @@ enum class RuleType {
 
 class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
     private var engine: ScriptEngine = ScriptEngineManager().getEngineByName("javascript")
-    var homeList: Any? = null
 
     /**
      * 规则是什么类型,
@@ -33,6 +33,9 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
     private val ruleJson = "@JSON"
     private val ruleXpath = "@XPATH"
 
+    fun getSourceUrl(): String {
+        return rule.sourceUrl
+    }
 
     /**
      * 设置请求的地址，获取绝对地址时可能有用
@@ -131,6 +134,7 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
         return sortMap
     }
 
+
     /**
      * 分离规则
      */
@@ -174,6 +178,25 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
         }
     }
 
+    fun getHomeList(html: String): Any? {
+        return when (rule.homeList) {
+            "" -> html
+            else -> getDataList(rule.homeList, html)
+        }
+    }
+
+    fun getHomeHref(result: Any?): Any? {
+        return getDataList(rule.homeHref, result)
+    }
+
+    fun getHomeSrc(result: Any?): Any? {
+        return getDataList(rule.homeSrc, result)
+    }
+
+    fun getHomeTitle(result: Any?): Any? {
+        return getDataList(rule.homeTitle, result)
+    }
+
     /**
      * 获取首页数据
      * @param html 网页源代码
@@ -186,7 +209,6 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
             }
         }
 
-        this.homeList = homeList
         val homeHrefDataList = analyzeResult(getDataList(rule.homeHref, homeList))
         val homeSrcDataList = analyzeResult(getDataList(rule.homeSrc, homeList))
         val homeTitleDataList = analyzeResult(getDataList(rule.homeTitle, homeList))
@@ -203,7 +225,7 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
                     val homeDAta =
                         HomeData(
                             homeHrefDataList[i].toString(),
-                            imgSrc!!,
+                            imgSrc,
                             homeTitleDataList[i].toString()
                         )
                     homeDataList.add(homeDAta)
@@ -238,6 +260,18 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
         return imgSrcList
     }
 
+    fun getImageNextPageHref(html: String, url: String): String {
+        if (rule.imageNextPage.isNotEmpty()) {
+            val doc = Jsoup.parse(html, url)
+            val dataList = getDataList(rule.imageNextPage, doc) as List<*>
+            if ((dataList).isNotEmpty()) {
+                Log.d("nextPage", dataList[0].toString())
+                return dataList[0].toString()
+            }
+        }
+        return ""
+    }
+
     /**
      * 根据规则，图片地址替换
      * @param jsStr 替换规则js
@@ -251,25 +285,43 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
         return rule.cookie
     }
 
+    fun getIndexHref(href: String): List<String> {
+        val regex = "<(.*),(.*)>"
+        val pattern = Pattern.compile(regex)
+        val matcher = pattern.matcher(href)
+        var indexHref = href
+        var nextHref = href
+        val list = ArrayList<String>()
+        while (matcher.find()) {
+            indexHref = href.replace(Regex("<.*>"), matcher.group(1))
+            nextHref = href.replace(Regex("<.*>"), matcher.group(2).trim())
+        }
+        list.add(indexHref)
+        list.add(nextHref)
+        return list
+    }
+
 }
 
 fun main() {
-    val rule = Rule()
-    rule.homeList = ".work-thumbnail"
-    rule.homeHref = "a@href"
-    rule.homeSrc = "img@abs:src"
-    rule.homeTitle = "div.title@text"
 
-    rule.imagePageList = "#imgs_json@text"
-    rule.imagePageSrc = "@json:$.[*]..img"
-    rule.imageUrlReplaceByJS = "imgSrc = 'http://imgoss.cnu.cc/' + imgSrc;"
-    val ruleUtil = RuleUtil(rule, AnalyzeRule())
 
-    val document = Jsoup.connect("http://www.cnu.cc/inspirationPage/recent-0").get().html()
-    val dataList = ruleUtil.getHomeDataList(document)
-    for (data in dataList) {
-        println(data.imgSrc + data.imgTitle + data.href)
-    }
+//    val rule = Rule()
+//    rule.homeList = ".work-thumbnail"
+//    rule.homeHref = "a@href"
+//    rule.homeSrc = "img@abs:src"
+//    rule.homeTitle = "div.title@text"
+//
+//    rule.imagePageList = "#imgs_json@text"
+//    rule.imagePageSrc = "@json:$.[*]..img"
+//    rule.imageUrlReplaceByJS = "imgSrc = 'http://imgoss.cnu.cc/' + imgSrc;"
+//    val ruleUtil = RuleUtil(Rule(), AnalyzeRule())
+//
+//    val document = Jsoup.connect("http://www.cnu.cc/inspirationPage/recent-0").get().html()
+//    val dataList = ruleUtil.getHomeDataList(document)
+//    for (data in dataList) {
+//        println(data.imgSrc + data.imgTitle + data.href)
+//    }
 //    val imgHtml = Jsoup.connect("http://www.cnu.cc/works/430080").get().html()
 //    println(ruleUtil.getImgList(imgHtml))
 ////    val jxDocument = JXDocument.create(elements)

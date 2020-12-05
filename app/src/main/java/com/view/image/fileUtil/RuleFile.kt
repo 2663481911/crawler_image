@@ -10,16 +10,17 @@ import java.io.*
 
 object RuleFile {
 
+
     fun readRule(context: Context): String {
-        val str = StringBuffer()
+        val string = StringBuffer()
         var inputStream: InputStream? = null
         try {
             val path = context.getExternalFilesDir(null)?.path
             inputStream = FileInputStream(File(path, Setting.RULE_FILE_NAME))
-            val buffer = ByteArray(1024)
-            var length: Int
-            while (inputStream.read(buffer).also { length = it } != -1) {
-                str.append(String(buffer, 0, length))
+            val reader = BufferedReader(InputStreamReader(inputStream, "utf-8"))
+            var str: String? = ""
+            while (reader.readLine().also { str = it } != null) {
+                string.append(str)
             }
 
         } catch (e: IOException) {
@@ -27,7 +28,7 @@ object RuleFile {
         } finally {
             inputStream?.close()
         }
-        return str.toString()
+        return string.toString()
     }
 
     fun saveRule(context: Context, str: String) {
@@ -44,8 +45,11 @@ object RuleFile {
         try {
             val path = context.getExternalFilesDir(null)?.path
             outputStream = FileOutputStream(File(path, name))
-            outputStream.write(str.toByteArray())
-
+            BufferedWriter(OutputStreamWriter(outputStream, "UTF-8")).run {
+                write(str)
+                flush()
+                close()
+            }
         } catch (e: IOException) {
             e.printStackTrace()
         } finally {

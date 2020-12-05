@@ -130,6 +130,17 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="@string/rule_img_next_page" />
+
+    <EditText
+        android:id="@+id/rule_img_next_page"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="@string/replace_page_src" />
 
     <EditText

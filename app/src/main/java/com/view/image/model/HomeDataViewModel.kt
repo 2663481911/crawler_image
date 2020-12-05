@@ -49,7 +49,19 @@ class HomeDataViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun setUrl(name: String) {
-        _dataUrl.value = ruleUtil!!.getSortMap()[name]
+
+        ruleUtil!!.getSortMap()[name]?.let {
+            val hrefList = ruleUtil!!.getIndexHref(it)
+            if (hrefList.size == 2) {
+                if (pageNum.value == 1)
+                    _dataUrl.value = hrefList[0]
+                else {
+                    _dataUrl.value = hrefList[1]
+                }
+            }
+
+        }
+
     }
 
     fun getSortNameList(): Set<String>? {

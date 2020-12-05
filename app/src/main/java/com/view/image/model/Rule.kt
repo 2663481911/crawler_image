@@ -13,6 +13,7 @@ import java.io.Serializable
  * @param homeSrcReplaceByJS 首页图片地址替换规则js
  * @param imagePageList 图片列表规则
  * @param imagePageSrc 图片地址规则
+ * @param imageNextPage 下一页
  * @param imageUrlReplaceByJS 图片地址替换规则js
  * @param reqMethod 请求方法
  * @param cookie 登录
@@ -30,6 +31,7 @@ class Rule(
     var homeSrcReplaceByJS: String = "",
     var imagePageList: String = "",
     var imagePageSrc: String = "",
+    var imageNextPage: String = "",
     var imageUrlReplaceByJS: String = "",
     var reqMethod: String = "GET",
     var cookie: String = "",
