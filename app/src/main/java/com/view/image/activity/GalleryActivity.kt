@@ -1,5 +1,6 @@
 package com.view.image.activity
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -14,6 +15,17 @@ import com.view.image.model.*
 
 class GalleryActivity : AppCompatActivity() {
     lateinit var binding: ActivityGalleryBinding
+
+    companion object {
+        fun actionStart(context: Context, data: HomeData, rule: Rule) {
+            Intent(context, GalleryActivity::class.java).apply {
+                putExtra("rule", rule)
+                putExtra("data", data)
+                context.startActivity(this)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityGalleryBinding.inflate(layoutInflater)
@@ -28,7 +40,6 @@ class GalleryActivity : AppCompatActivity() {
         })
 
         galleryViewModel.setRule(rule)
-
         val galleryAdapter = GalleryAdapter()
 
         galleryViewModel.imgUrlListLive.observe(this, {
@@ -45,11 +56,9 @@ class GalleryActivity : AppCompatActivity() {
 
         galleryAdapter.setOnClickListener(object : GalleryAdapter.ClickListener {
             override fun setOnClickListener(view: View, position: Int) {
-                Intent(this@GalleryActivity, PhotoActivity::class.java).apply {
-                    putStringArrayListExtra("urlList", galleryViewModel.imgUrlListLive.value)
-                    putExtra("pos", position)
-                    putExtra("name", data.imgTitle)
-                    startActivity(this)
+                galleryViewModel.imgUrlListLive.value?.let {
+                    PhotoActivity.actionStart(this@GalleryActivity,
+                        it, position, data.imgTitle)
                 }
             }
 

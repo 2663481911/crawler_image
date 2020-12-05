@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.gson.Gson
 import com.view.image.R
+import com.view.image.activity.DebugActivity
 import com.view.image.databinding.FragmentToolbarBinding
 import com.view.image.fileUtil.ClipBoar
 import com.view.image.fileUtil.RuleFile
@@ -75,6 +76,7 @@ class RuleToolbarFragment : Fragment() {
                     ADD_RULE_CODE -> {
                         rule?.let { RuleFile.addRule(requireContext(), it) }
                     }
+
                     EDIT_RULE_CODE -> {
                         rule?.let { RuleFile.editRule(requireContext(), it, rulePosition) }
                     }
@@ -89,7 +91,6 @@ class RuleToolbarFragment : Fragment() {
                 try {
                     val rule = Gson().fromJson(textFromClip, Rule::class.java)
                     viewModel.ruleLiveData.value = rule
-
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Toast.makeText(requireContext(), "格式错误", Toast.LENGTH_SHORT).show()
@@ -98,9 +99,16 @@ class RuleToolbarFragment : Fragment() {
             }
             R.id.copy_rule -> {
                 val rule = activity?.intent?.getSerializableExtra("rule") as Rule
-//                ClipBoar.putTextIntoClip(requireContext(), rule.toString())
                 ClipBoar.putTextIntoClip(requireContext(), Gson().toJson(rule).toString())
                 Toast.makeText(requireContext(), "复制成功", Toast.LENGTH_SHORT).show()
+            }
+
+            R.id.debug_rule -> {
+                viewModel.isGetRuleLive.value = true
+                val rule = viewModel.ruleLiveData.value
+                rule?.let {
+                    DebugActivity.actionStart(requireContext(), it)
+                }
             }
         }
         return true

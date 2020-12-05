@@ -1,7 +1,6 @@
 package com.view.image.fileUtil
 
 import android.content.Context
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.view.image.model.Rule
@@ -46,7 +45,7 @@ object RuleFile {
             val path = context.getExternalFilesDir(null)?.path
             outputStream = FileOutputStream(File(path, name))
             outputStream.write(str.toByteArray())
-            path?.let { Log.d("file", it) }
+
         } catch (e: IOException) {
             e.printStackTrace()
         } finally {

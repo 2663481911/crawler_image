@@ -4,17 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".activity.AdjustmentRuleActivity">
+    tools:context=".activity.ManageRuleActivity">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/toolbar_fragment"
-        android:name="com.view.image.fragment.AdjustRuleToolbarFragment"
+        android:name="com.view.image.fragment.ManageRuleToolbarFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/adjust_fragment"
-        android:name="com.view.image.fragment.AdjustRuleFragment"
+        android:name="com.view.image.fragment.ManageRuleFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

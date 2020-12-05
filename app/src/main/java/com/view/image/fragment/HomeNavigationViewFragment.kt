@@ -3,7 +3,6 @@ package com.view.image.fragment
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,7 +22,6 @@ class HomeNavigationViewFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         // Inflate the layout for this fragment
-        Log.d("HomeNavigationView", "onCreateView")
         viewBinding = FragmentHomeNavigationViewBinding.inflate(layoutInflater)
         return viewBinding.root
     }
@@ -41,8 +39,6 @@ class HomeNavigationViewFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        Log.d("HomeNavigationView", "onStart")
-//        homeRuleViewModel.readRule()
         homeRuleViewModel.ruleListLive.observe(viewLifecycleOwner, {
             val ruleNameList = homeRuleViewModel.getRuleNameList()
             initNavigationView(ruleNameList)
@@ -60,7 +56,6 @@ class HomeNavigationViewFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Log.d("Toolbar_code", resultCode.toString())
         when (resultCode) {
             SAVE_RULE_CODE -> homeRuleViewModel.loadRuleList(true)
         }

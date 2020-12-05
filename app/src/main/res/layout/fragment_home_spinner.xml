@@ -10,7 +10,9 @@
         android:id="@+id/spinner_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="3" />
+        android:layout_weight="3"
+        android:gravity="center_horizontal"
+        android:textAlignment="center" />
 
     <EditText
         android:id="@+id/set_page_num"

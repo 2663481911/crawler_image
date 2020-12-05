@@ -23,6 +23,7 @@ enum class RuleType {
 
 class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
     private var engine: ScriptEngine = ScriptEngineManager().getEngineByName("javascript")
+    var homeList: Any? = null
 
     /**
      * 规则是什么类型,
@@ -111,7 +112,6 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
             val sortList = rule.sortUrl.trim().split("\n")
             for (sort in sortList) {
                 sort.trim().split("::").also {
-                    println(sort)
                     if (it.size == 2)
                         sortMap[it[0].trim()] = it[1].trim()
                 }
@@ -185,6 +185,8 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
                 getDataList(homeListRule, html)
             }
         }
+
+        this.homeList = homeList
         val homeHrefDataList = analyzeResult(getDataList(rule.homeHref, homeList))
         val homeSrcDataList = analyzeResult(getDataList(rule.homeSrc, homeList))
         val homeTitleDataList = analyzeResult(getDataList(rule.homeTitle, homeList))

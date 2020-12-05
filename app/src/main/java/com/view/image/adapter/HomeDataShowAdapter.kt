@@ -76,8 +76,6 @@ class HomeDataShowAdapter :
             return
         } else {
             val imageView: ImageView = holder.itemView.findViewById(R.id.image_view)
-//            val textView:TextView = holder.itemView.findViewById(R.id.data_item_text_view)
-//            Log.d("item", holder.itemView.toString())
             Log.d("imgSrc", getItem(position).imgSrc)
             Glide.with(holder.itemView)
                 .load(getItem(position).imgSrc)

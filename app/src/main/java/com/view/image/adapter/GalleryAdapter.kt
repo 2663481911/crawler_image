@@ -31,13 +31,13 @@ class GalleryAdapter : ListAdapter<String, GalleryAdapter.GalleryViewHolder>(Dif
     }
 
     override fun onBindViewHolder(holder: GalleryViewHolder, position: Int) {
-        val imageView = holder.itemView.findViewById<ImageView>(R.id.imageView)
+
         Glide.with(holder.itemView)
             .load(getItem(position))
             .placeholder(R.drawable.ic_launcher_foreground)
-            .into(imageView)
+            .into(holder.imageView)
 
-        imageView.setOnClickListener {
+        holder.imageView.setOnClickListener {
             listener?.setOnClickListener(it, position)
         }
 
@@ -54,6 +54,8 @@ class GalleryAdapter : ListAdapter<String, GalleryAdapter.GalleryViewHolder>(Dif
     }
 
 
-    class GalleryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class GalleryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val imageView: ImageView = itemView.findViewById(R.id.imageView)
+    }
 }
 

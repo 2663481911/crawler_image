@@ -9,7 +9,7 @@ import com.view.image.fileUtil.RuleFile
 
 class HomeRuleViewModel(application: Application) : AndroidViewModel(application) {
     private val _ruleLive = MutableLiveData<Rule>()
-    private val _curRuleNumLive = MutableLiveData<Int>(0)
+    private val _curRuleNumLive = MutableLiveData(0)
     private val _ruleListLive = MutableLiveData<List<Rule>>()
 
     val ruleListLive: LiveData<List<Rule>>
@@ -17,6 +17,9 @@ class HomeRuleViewModel(application: Application) : AndroidViewModel(application
 
     val ruleLive: LiveData<Rule>
         get() = _ruleLive
+    val curRulePosition: LiveData<Int>
+        get() = _curRuleNumLive
+
 
     /**
      * @param reLoad 重新加载
@@ -24,7 +27,7 @@ class HomeRuleViewModel(application: Application) : AndroidViewModel(application
     fun loadRuleList(reLoad: Boolean = false) {
         if (_ruleListLive.value.isNullOrEmpty() || reLoad) {
             _ruleListLive.value = RuleFile.ruleStrToArrayRule(RuleFile.readRule(getApplication()))
-            _ruleLive.value = _ruleListLive.value!![0]
+            _ruleLive.value = _ruleListLive.value!![_curRuleNumLive.value!!]
         }
     }
 
@@ -35,11 +38,5 @@ class HomeRuleViewModel(application: Application) : AndroidViewModel(application
     fun setRule(curRulePosition: Int) {
         _ruleLive.value = RuleFile.getRule(_ruleListLive.value!!, curRulePosition)
         _curRuleNumLive.value = curRulePosition
-//        val ruleList = RuleFile.moveCutRulePositionIn0(_ruleListLive.value!!, curRulePosition)
-//        RuleFile.saveRule(getApplication(), Gson().toJson(ruleList).toString())
-
-//        _ruleListLive.value =
-//            RuleFile.moveCutRulePositionIn0(_ruleListLive.value!!, curRulePosition)
-//        RuleFile.saveRule(getApplication(), Gson().toJson(_ruleListLive.value).toString())
     }
 }

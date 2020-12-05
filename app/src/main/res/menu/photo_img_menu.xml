@@ -6,6 +6,10 @@
         android:title="@string/down"></item>
 
     <item
+        android:id="@+id/save_all_img"
+        android:title="@string/down_all"></item>
+
+    <item
         android:id="@+id/shave_img"
         android:title="@string/shave" />
 

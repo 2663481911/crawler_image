@@ -68,8 +68,6 @@ class HomeDataViewModel(application: Application) : AndroidViewModel(application
                 _dataStatusLive.postValue(DATA_STATUS_NOR_MORE)
                 return
             }
-
-            Log.d("homeDataList", homeDataList.size.toString())
             val values = when {
                 !isRefresh -> {       // 不是顶部刷新
                     val values = _photoListLive.value?.toMutableList()
@@ -82,6 +80,7 @@ class HomeDataViewModel(application: Application) : AndroidViewModel(application
             }
             _photoListLive.postValue(values)
             // 设置状态码
+            _dataStatusLive.postValue(DATA_STATUS_LOAD_NORMAL)
         } catch (e: Exception) {
             e.printStackTrace()
         }

@@ -1,5 +1,6 @@
 package com.view.image.fragment
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
@@ -15,10 +16,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.gson.Gson
 import com.view.image.R
-import com.view.image.activity.AdjustmentRuleActivity
+import com.view.image.activity.ManageRuleActivity
 import com.view.image.activity.RuleActivity
 import com.view.image.databinding.FragmentToolbarBinding
 import com.view.image.fileUtil.ClipBoar
+import com.view.image.fileUtil.RuleFile
 import com.view.image.model.*
 
 
@@ -63,18 +65,12 @@ class HomeToolbarFragment : Fragment() {
             android.R.id.home -> activity?.findViewById<DrawerLayout>(R.id.home_drawer_layout)
                 ?.openDrawer(GravityCompat.START)
             R.id.edit_cur_rule -> {
-                Intent(context, RuleActivity::class.java).apply {
-                    putExtra("rule", homeRuleViewModel.ruleLive.value)
-                    putExtra("code", EDIT_RULE_CODE)
-                    startActivityForResult(this, EDIT_RULE_CODE)
-                }
+                RuleActivity.actionStart(requireActivity(), EDIT_RULE_CODE,
+                    homeRuleViewModel.ruleLive.value!!,
+                    homeRuleViewModel.curRulePosition.value!!)
             }
             R.id.add_rule -> {
-                Intent(context, RuleActivity::class.java).apply {
-                    putExtra("rule", Rule())
-                    putExtra("code", ADD_RULE_CODE)
-                    startActivityForResult(this, ADD_RULE_CODE)
-                }
+                RuleActivity.actionStart(requireActivity(), ADD_RULE_CODE, Rule(), 0)
             }
 
             R.id.add_net_rule -> {
@@ -82,11 +78,7 @@ class HomeToolbarFragment : Fragment() {
             }
 
             R.id.add_local_rule -> {
-                activity?.let { MyPermissions.askPermissions(it) }
-                val intent = Intent(Intent.ACTION_GET_CONTENT)
-                intent.type = "*/*"
-                intent.addCategory(Intent.CATEGORY_OPENABLE)
-                startActivityForResult(intent, 2)
+                pickFile()
             }
 
             R.id.copy_rule -> {
@@ -96,9 +88,7 @@ class HomeToolbarFragment : Fragment() {
             }
 
             R.id.edit_rule -> {
-                Intent(context, AdjustmentRuleActivity::class.java).also {
-                    startActivityForResult(it, EDIT_RULE_CODE)
-                }
+                ManageRuleActivity.actionStart(requireActivity(), EDIT_RULE_CODE)
             }
 
         }
@@ -121,6 +111,46 @@ class HomeToolbarFragment : Fragment() {
                 Log.d("inputText", inputText)
             }
         builder.show()
+    }
+
+    private fun pickFile() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.type = "*/*"
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        startActivityForResult(intent, PICK_FILE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            PICK_FILE -> {
+                if (resultCode == Activity.RESULT_OK && data != null) {
+                    val uri = data.data
+                    Log.d("uri", uri.toString())
+                    if (uri != null) {
+                        val str = StringBuffer()
+                        val inputStream = requireContext().contentResolver.openInputStream(uri)
+                        // 执行文件读写操作
+                        val buffer = ByteArray(1024)
+                        var length: Int
+                        if (inputStream != null) {
+                            while (inputStream.read(buffer).also { length = it } != -1) {
+                                str.append(String(buffer, 0, length))
+                            }
+                        }
+                        val ruleList = RuleFile.ruleStrToArrayRule(str.toString())
+                        val curRuleList =
+                            RuleFile.ruleStrToArrayRule(RuleFile.readRule(requireContext()))
+                                .toMutableList()
+                        for (rule in ruleList) {
+                            curRuleList.add(rule)
+                        }
+                        RuleFile.saveRule(requireContext(), curRuleList)
+                        homeRuleViewModel.loadRuleList(true)
+                    }
+                }
+            }
+        }
     }
 
 

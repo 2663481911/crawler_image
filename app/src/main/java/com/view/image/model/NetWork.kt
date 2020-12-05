@@ -6,29 +6,36 @@ import org.json.JSONObject
 import java.io.IOException
 
 object NetWork {
-    fun get(url: String, cookie: String, netWorkCall: NetWorkCall) {
-        val okHttpClient = OkHttpClient()
-        val request: Request =
-            Request.Builder()
-                .url(url)
-                .header("Cookie", cookie)
-                .build()
-        val call: Call = okHttpClient.newCall(request)
-        call.enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                netWorkCall.onFailure(call, e)
-            }
 
-            override fun onResponse(call: Call, response: Response) {
-                netWorkCall.onResponse(call, response)
-            }
-        })
+    fun get(url: String, cookie: String, netWorkCall: NetWorkCall) {
+        try {
+
+            val okHttpClient = OkHttpClient()
+            val request: Request =
+                Request.Builder()
+                    .url(url)
+                    .header("Cookie", cookie)
+                    .header("User-Agent", " Mozilla/5.0")
+                    .build()
+            val call: Call = okHttpClient.newCall(request)
+            call.enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    netWorkCall.onFailure(call, e)
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    netWorkCall.onResponse(call, response)
+                }
+            })
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
+        }
+
     }
 
     fun post(url: String, data: String, cookie: String, netWorkCall: NetWorkCall) {
         try {
             val okHttpClient = OkHttpClient().newBuilder().build()
-            //    val map = Gson().fromJson<Map<String, Any>>(dataJson, Map::class.java)
             val map = JSONObject(data)
             val requestBody: RequestBody = FormBody.Builder().apply {
                 //        add("req", dataJson)
@@ -41,6 +48,7 @@ object NetWork {
                 .post(requestBody)
                 .url(url)
                 .header("Cookie", cookie)
+                .header("User-Agent", " Mozilla/5.0")
                 .build()
             val call: Call = okHttpClient.newCall(request)
             call.enqueue(object : Callback {

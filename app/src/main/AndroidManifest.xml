@@ -10,7 +10,6 @@
         tools:ignore="ScopedStorage" />
 
     <application
-        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security_config"
@@ -19,11 +18,25 @@
         android:theme="@style/Theme.Image"
         android:usesCleartextTraffic="true"
         tools:targetApi="n">
-        <activity android:name=".activity.AdjustmentRuleActivity"></activity>
-        <activity android:name=".activity.RuleActivity" />
-        <activity android:name=".activity.PhotoActivity" />
-        <activity android:name=".activity.GalleryActivity" />
-        <activity android:name=".activity.MainActivity">
+        <!--        android:launchMode="singleTop"  用于顶部只有一个相同的activity 可以防止多少点击创建多个activity-->
+        <activity
+            android:name=".activity.DebugActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".activity.ManageRuleActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".activity.RuleActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".activity.PhotoActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".activity.GalleryActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".activity.MainActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

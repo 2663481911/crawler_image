@@ -1,9 +1,7 @@
 package com.view.image.fragment
 
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -48,10 +46,9 @@ class HomeDataShowFragment : Fragment() {
 
         homeDataShowAdapter.setOnClickListener(object : HomeDataShowAdapter.ClickListener {
             override fun setOnClickListener(view: View, data: HomeData) {
-                Intent(context, GalleryActivity::class.java).apply {
-                    putExtra("rule", ruleViewModel.ruleLive.value)
-                    putExtra("data", data)
-                    startActivity(this)
+
+                ruleViewModel.ruleLive.value?.let {
+                    GalleryActivity.actionStart(requireContext(), data, it)
                 }
             }
 
@@ -79,8 +76,6 @@ class HomeDataShowFragment : Fragment() {
 
         // 第一次加载数据
         homeDataViewModel.dataUrl.observe(this.viewLifecycleOwner, {
-            Log.d("url", it)
-//            fragmentBinding.recyclerView.scrollToPosition(0)
             homeDataViewModel.clearImageUrl()
             homeDataViewModel.isRefresh = true
             homeDataViewModel.setPageNum(1)
@@ -108,7 +103,6 @@ class HomeDataShowFragment : Fragment() {
                 layoutManager.findLastVisibleItemPositions(intArray)
                 if (intArray[0] == homeDataShowAdapter.itemCount - 1) {
                     val pageNum = homeDataViewModel.pageNum.value!! + 1
-//                    if (pageNum == galleryViewModel.pageNum.value!! - 1)
                     if (!homeDataViewModel.isBeGetVale) {
                         homeDataViewModel.isRefresh = false
                         homeDataViewModel.setPageNum(pageNum)
