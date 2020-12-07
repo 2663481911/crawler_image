@@ -4,8 +4,8 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.view.image.analyzeRule.Rule
 import com.view.image.databinding.ActivityRuleBinding
-import com.view.image.model.Rule
 
 
 class RuleActivity : AppCompatActivity() {

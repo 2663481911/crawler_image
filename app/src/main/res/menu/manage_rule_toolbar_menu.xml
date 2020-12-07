@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/add_rule"
+        android:icon="@android:drawable/ic_menu_add"
+        android:title="@string/add_rule" />
+
+    <item
+        android:id="@+id/add_local_rule"
+        android:title="@string/add_local_rule"
+        app:showAsAction="withText" />
+
+    <item
+        android:id="@+id/add_net_rule"
+        android:title="@string/net_add_rule"
+        app:showAsAction="withText" />
+
+    <item
+        android:id="@+id/share_rule"
+        android:title="@string/share_rule"
+        app:showAsAction="withText" />
+
+</menu>

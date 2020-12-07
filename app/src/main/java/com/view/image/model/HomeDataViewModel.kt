@@ -6,11 +6,12 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.view.image.analyzeRule.AnalyzeRule
+import com.view.image.analyzeRule.Rule
 import com.view.image.analyzeRule.RuleUtil
-import com.view.image.model.NetWork.NetWorkCall
 import okhttp3.Call
 import okhttp3.Response
 import java.io.IOException
+import java.nio.charset.Charset
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -18,7 +19,8 @@ const val DATA_STATUS_NETWORK_ERROR = 404    // 网络错误
 const val DATA_STATUS_LOAD_NORMAL = 200   // 正常加载
 const val DATA_STATUS_NOR_MORE = 204   // 没有数据
 
-class HomeDataViewModel(application: Application) : AndroidViewModel(application) {
+class HomeDataViewModel(application: Application) : AndroidViewModel(application),
+    NetWork.NetWorkCall {
 
     val pageNum: LiveData<Int>
         get() = _pageNum
@@ -29,6 +31,10 @@ class HomeDataViewModel(application: Application) : AndroidViewModel(application
     val photoListLive: LiveData<List<HomeData>>
         get() = _photoListLive
     var isRefresh: Boolean = false    // 是不是下拉刷新, 加载把位置调到0
+    val curReqUrl: LiveData<String>
+        get() = _curReqUrl
+
+    private var _curReqUrl = MutableLiveData<String>()     // 当前请求地址
     private val _dataUrl = MutableLiveData<String>()    // 请求地址
     private val _photoListLive = MutableLiveData<List<HomeData>>()    // 数据
     private var ruleUtil: RuleUtil? = null
@@ -40,16 +46,14 @@ class HomeDataViewModel(application: Application) : AndroidViewModel(application
         _photoListLive.value = null
     }
 
-    fun getImgUrlList(html: String): MutableList<Any?>? {
-        return ruleUtil?.getImgList(html)
-    }
-
     fun setPageNum(num: Int) {
         _pageNum.value = num
     }
 
+    /**
+     * 获取sort请求地址
+     */
     fun setUrl(name: String) {
-
         ruleUtil!!.getSortMap()[name]?.let {
             val hrefList = ruleUtil!!.getIndexHref(it)
             if (hrefList.size == 2) {
@@ -104,50 +108,41 @@ class HomeDataViewModel(application: Application) : AndroidViewModel(application
         // 用于防止加载多次
         if (isBeGetVale) return
         isBeGetVale = true
-        if (ruleUtil?.getRuleReqMethod()?.toLowerCase(Locale.ROOT) == "get") {
-            dataUrl.value?.replace("@page", _pageNum.value.toString())?.let {
-                NetWork.get(it, ruleUtil!!.getCooke(), object : NetWorkCall {
-                    override fun onFailure(call: Call, e: IOException) {
-                        onCallFailure(call, e)
-                    }
 
-                    override fun onResponse(call: Call, response: Response) {
-                        onCallResponse(call, response)
-                    }
-                })
-            }
-        } else {
-            dataUrl.value?.replace("@page", _pageNum.value.toString())?.let {
-                thread {
-                    val data = ruleUtil?.getNewData(_dataUrl.value!!, _pageNum.value!!)
-                    NetWork.post(it, data!!, ruleUtil!!.getCooke(), object : NetWorkCall {
-                        override fun onFailure(call: Call, e: IOException) {
-                            onCallFailure(call, e)
-                        }
-
-                        override fun onResponse(call: Call, response: Response) {
-                            onCallResponse(call, response)
-                        }
-                    })
+        when {
+            ruleUtil?.getRuleReqMethod()?.toLowerCase(Locale.ROOT) == "get" -> {
+                // 获取请求地址
+                dataUrl.value?.replace("@page", _pageNum.value.toString())?.let {
+                    _curReqUrl.value = it
+                    NetWork.get(it, ruleUtil!!.getCooke(), this)
                 }
             }
+            else -> {
+                dataUrl.value?.replace("@page", _pageNum.value.toString())?.let {
+                    thread {
+                        val data = ruleUtil?.getNewData(_dataUrl.value!!, _pageNum.value!!)
+                        NetWork.post(it, data!!, ruleUtil!!.getCooke(), this)
+                    }
+                }
 
 
+            }
         }
     }
 
-    fun onCallResponse(call: Call, response: Response) {
-        ruleUtil?.setRequestUrl(call.request().url.toString())
-        responseCall(response.body?.string()!!)
-        isBeGetVale = false
-    }
-
-    fun onCallFailure(call: Call, e: IOException) {
+    override fun onFailure(call: Call, e: IOException) {
         Log.d("onFailureUrl", call.request().url.toString())
         isBeGetVale = false
         // 设置状态码
         _dataStatusLive.postValue(DATA_STATUS_NETWORK_ERROR)
         e.printStackTrace()
+    }
+
+    override fun onResponse(call: Call, response: Response) {
+        ruleUtil?.setRequestUrl(call.request().url.toString())
+        responseCall(String(response.body!!.bytes(),
+            charset = Charset.forName(ruleUtil!!.getCharset())))
+        isBeGetVale = false
     }
 
 }

@@ -6,10 +6,9 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.view.image.analyzeRule.Rule
 import com.view.image.databinding.ActivityDebugBinding
 import com.view.image.model.DebugReqViewModel
-import com.view.image.model.Rule
-import kotlin.concurrent.thread
 
 class DebugActivity : AppCompatActivity() {
     lateinit var binding: ActivityDebugBinding
@@ -33,9 +32,10 @@ class DebugActivity : AppCompatActivity() {
         val rule = intent.getSerializableExtra("rule") as Rule
         val viewModel = ViewModelProvider(this).get(DebugReqViewModel::class.java)
         viewModel.setRuleUtil(rule)
-        thread {
+
+        viewModel.oneSortUrl.observe(this, {
             viewModel.getHomeHtml()
-        }
+        })
 
         viewModel.homeListData.observe(this, {
             binding.homeList.text = it
@@ -47,9 +47,9 @@ class DebugActivity : AppCompatActivity() {
 
         viewModel.homeHref.observe(this, {
             binding.homeHref.text = "size:${it.size}    $it"
-            thread {
-                viewModel.getImagePage()
-            }
+//            thread {
+            viewModel.getImagePage()
+//            }
         })
 
         viewModel.homeTitle.observe(this, {

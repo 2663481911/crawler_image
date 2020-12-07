@@ -3,7 +3,6 @@ package com.view.image.analyzeRule
 import android.util.Log
 import com.view.image.analyzeRule.RuleType.*
 import com.view.image.model.HomeData
-import com.view.image.model.Rule
 import org.jsoup.Jsoup
 import java.util.*
 import java.util.regex.Pattern
@@ -22,8 +21,10 @@ enum class RuleType {
 }
 
 
+@Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS",
+    "RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
-    private var engine: ScriptEngine = ScriptEngineManager().getEngineByName("javascript")
+    private val engine: ScriptEngine = ScriptEngineManager().getEngineByName("javascript")
 
     /**
      * 规则是什么类型,
@@ -33,8 +34,10 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
     private val ruleJson = "@JSON"
     private val ruleXpath = "@XPATH"
 
-    fun getSourceUrl(): String {
-        return rule.sourceUrl
+    fun getCharset(): String {
+        if (rule.charset == "")
+            return "utf-8"
+        return rule.charset
     }
 
     /**
@@ -44,7 +47,9 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
         analyzeRuleDao.setRequestUrl(url)
     }
 
-    // 获取请求方法
+    /**
+     * 获取请求方法
+     */
     fun getRuleReqMethod(): String {
         return rule.reqMethod
     }
@@ -58,7 +63,8 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
     fun getNewData(url: String, page: Int): String {
         val data = getDataToUrl(url)
         val jsStr = rule.jsMethod
-        if (rule.js.isNotEmpty()) {
+        if (rule.js.isNotEmpty() && engine["js"] == null) {
+            Log.d("js", "js")
             analyzeRuleDao.addJs(rule.js, engine)
         }
         engine.put("data", data)
@@ -158,8 +164,8 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
         val ruleStr = getRuleString(ruleString)
         return when (stringType(ruleString)) {
             JS -> {
-                if (rule.js.isNotEmpty()) {
-                    engine.let { analyzeRuleDao.addJs(rule.js, it) }
+                if (rule.js.isNotEmpty() && engine["js"] == null) {
+                    analyzeRuleDao.addJs(rule.js, engine)
                 }
                 engine.let { analyzeRuleDao.analyzeByJS(ruleStr, result, it) }
             }
@@ -230,8 +236,6 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
                         )
                     homeDataList.add(homeDAta)
                 }
-
-
             }
         }
         return homeDataList
@@ -261,7 +265,7 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
     }
 
     fun getImageNextPageHref(html: String, url: String): String {
-        if (rule.imageNextPage.isNotEmpty()) {
+        if (rule.imageNextPage != "") {
             val doc = Jsoup.parse(html, url)
             val dataList = getDataList(rule.imageNextPage, doc) as List<*>
             if ((dataList).isNotEmpty()) {
@@ -281,6 +285,7 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
         return engine.let { analyzeRuleDao.analyzeByJsReplace(jsStr, imgSrc, it) }
     }
 
+
     fun getCooke(): String {
         return rule.cookie
     }
@@ -293,8 +298,9 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
         var nextHref = href
         val list = ArrayList<String>()
         while (matcher.find()) {
-            indexHref = href.replace(Regex("<.*>"), matcher.group(1))
-            nextHref = href.replace(Regex("<.*>"), matcher.group(2).trim())
+            val regex1 = Regex("<.*>")
+            indexHref = href.replace(regex1, matcher.group(1))
+            nextHref = href.replace(regex1, matcher.group(2).trim())
         }
         list.add(indexHref)
         list.add(nextHref)

@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.view.image.analyzeRule.Rule
 import com.view.image.databinding.FragmentRuleBinding
-import com.view.image.model.Rule
 import com.view.image.model.RuleActivityViewModel
 
 class RuleFragment : Fragment() {
@@ -67,8 +67,8 @@ class RuleFragment : Fragment() {
             ruleCookie.setText(rule.cookie)
             ruleAddJs.setText(rule.js)
             ruleJsMethod.setText(rule.jsMethod)
+            charset.setText(rule.charset)
         }
-
     }
 
     /**
@@ -96,6 +96,8 @@ class RuleFragment : Fragment() {
             cookie = binding.ruleCookie.text.toString()
             js = binding.ruleAddJs.text.toString()
             jsMethod = binding.ruleJsMethod.text.toString()
+            charset = binding.charset.text.toString()
+
         }
         return rule
     }

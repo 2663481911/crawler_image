@@ -3,9 +3,10 @@ package com.view.image.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.view.image.R
+import com.view.image.fileUtil.ImageFile
 
 
 class PagerPhotoAdapter(private val urlList: List<String>) :
@@ -19,9 +20,10 @@ class PagerPhotoAdapter(private val urlList: List<String>) :
     }
 
     override fun onBindViewHolder(holder: PagePhotoViewHolder, position: Int) {
-        Glide.with(holder.itemView)
-            .load(urlList[position])
-            .into(holder.itemView.findViewById(R.id.photo_view))
+        ImageFile.showImg(holder.itemView, holder.imageView, urlList[position])
+//        Glide.with(holder.itemView)
+//            .load(urlList[position])
+//            .into(holder.itemView.findViewById(R.id.photo_view))
     }
 
     override fun getItemCount(): Int {
@@ -29,4 +31,6 @@ class PagerPhotoAdapter(private val urlList: List<String>) :
     }
 }
 
-class PagePhotoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+class PagePhotoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    val imageView: ImageView = itemView.findViewById(R.id.photo_view)
+}

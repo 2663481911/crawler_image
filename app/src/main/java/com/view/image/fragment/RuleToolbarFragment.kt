@@ -11,10 +11,14 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.gson.Gson
 import com.view.image.R
 import com.view.image.activity.DebugActivity
+import com.view.image.analyzeRule.Rule
 import com.view.image.databinding.FragmentToolbarBinding
 import com.view.image.fileUtil.ClipBoar
 import com.view.image.fileUtil.RuleFile
-import com.view.image.model.*
+import com.view.image.model.ADD_RULE_CODE
+import com.view.image.model.EDIT_RULE_CODE
+import com.view.image.model.RuleActivityViewModel
+import com.view.image.model.SAVE_RULE_CODE
 
 
 class RuleToolbarFragment : Fragment() {

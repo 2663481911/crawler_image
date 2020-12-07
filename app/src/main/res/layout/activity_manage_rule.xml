@@ -1,21 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/background"
     tools:context=".activity.ManageRuleActivity">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/toolbar_fragment"
         android:name="com.view.image.fragment.ManageRuleToolbarFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true" />
 
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/adjust_fragment"
+        android:id="@+id/manage_fragment"
         android:name="com.view.image.fragment.ManageRuleFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar_fragment"
+        android:layout_alignEnd="@id/toolbar_fragment"
+        android:layout_alignRight="@id/toolbar_fragment" />
 
-</LinearLayout>
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/manage_bottom_fragment"
+        android:name="com.view.image.fragment.ManageBottomFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+
+</RelativeLayout>

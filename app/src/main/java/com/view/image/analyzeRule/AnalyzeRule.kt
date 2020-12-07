@@ -1,6 +1,5 @@
 package com.view.image.analyzeRule
 
-import android.util.Log
 import com.jayway.jsonpath.JsonPath
 import okhttp3.Call
 import okhttp3.OkHttpClient
@@ -62,7 +61,8 @@ class AnalyzeRule : AnalyzeRuleDao {
                     is JXNode -> {
                         val jxNodeList: MutableList<JXNode> = ArrayList()
                         for (jxNode in doc) {
-                            jxNodeList.add((jxNode as JXNode).selOne(xpathString))
+                            val jxNode1 = jxNode as JXNode
+                            jxNodeList.add(jxNode1.selOne(xpathString))
                         }
                         jxNodeList
                     }
@@ -102,18 +102,29 @@ class AnalyzeRule : AnalyzeRuleDao {
                 2 -> {
                     for (element in elements) {
                         element.setBaseUri(url)
-                        Log.d("element", "${element.baseUri()} url = $url")
                         when {
                             it[0] != "" -> {
                                 for (element1 in element.select(it[0])) {
 
-                                    if (it[1] == "text") {
-                                        val text = element1.text()
-                                        arrayList.add(text)
-                                    } else {
-//                                        element1.setBaseUri("http://www.zdqx.com/html/hotlist-2.html")
-                                        val attr = element1.absUrl(it[1])
-                                        arrayList.add(attr)
+                                    when (it[1]) {
+                                        "text" -> {
+                                            val text = element1.text()
+                                            arrayList.add(text)
+                                        }
+
+                                        "url" -> {
+                                            val attr = element1.absUrl(it[1])
+                                            arrayList.add(attr)
+                                        }
+                                        "href" -> {
+                                            val attr = element1.absUrl(it[1])
+                                            arrayList.add(attr)
+                                        }
+                                        else -> {
+                                            val attr = element1.attr(it[1])
+                                            arrayList.add(attr)
+                                        }
+
                                     }
                                 }
                             }
@@ -157,6 +168,7 @@ class AnalyzeRule : AnalyzeRuleDao {
 
     override fun addJs(jsUrl: String, engine: ScriptEngine) {
         val html = getHtml(jsUrl)
+        engine.put("js", html)
         engine.eval(html)
     }
 

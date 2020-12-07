@@ -7,12 +7,16 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.view.image.R
+import com.view.image.fileUtil.ImageFile
 
 
 class GalleryAdapter : ListAdapter<String, GalleryAdapter.GalleryViewHolder>(DiffCallback) {
     private var listener: ClickListener? = null
+    private var referer: String = ""
+    fun setReferer(referer: String) {
+        this.referer = referer
+    }
 
     interface ClickListener {
         fun setOnClickListener(view: View, position: Int)
@@ -32,10 +36,12 @@ class GalleryAdapter : ListAdapter<String, GalleryAdapter.GalleryViewHolder>(Dif
 
     override fun onBindViewHolder(holder: GalleryViewHolder, position: Int) {
 
-        Glide.with(holder.itemView)
-            .load(getItem(position))
-            .placeholder(R.drawable.ic_launcher_foreground)
-            .into(holder.imageView)
+//        Glide.with(holder.itemView)
+//            .load(getItem(position))
+//            .placeholder(R.drawable.ic_launcher_foreground)
+//            .into(holder.imageView)
+
+        ImageFile.showImg(holder.itemView, holder.imageView, getItem(position), referer)
 
         holder.imageView.setOnClickListener {
             listener?.setOnClickListener(it, position)

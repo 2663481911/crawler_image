@@ -4,16 +4,20 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.view.image.analyzeRule.AnalyzeRule
+import com.view.image.analyzeRule.Rule
 import com.view.image.analyzeRule.RuleUtil
 import okhttp3.Call
 import okhttp3.Response
 import java.io.IOException
+import java.nio.charset.Charset
 import java.util.*
+import kotlin.concurrent.thread
 
 class DebugReqViewModel : NetWork.NetWorkCall, ViewModel() {
     private val startPage = MutableLiveData(1)
     private lateinit var ruleUtil: RuleUtil
     private val homeStatusCode = MutableLiveData<Int>()
+    val oneSortUrl = MutableLiveData<String>()
     val homeListData = MutableLiveData<String>()
     val homeHref = MutableLiveData<List<*>>()
     val homeTitle = MutableLiveData<List<*>>()
@@ -31,10 +35,11 @@ class DebugReqViewModel : NetWork.NetWorkCall, ViewModel() {
 
     fun setRuleUtil(rule: Rule) {
         ruleUtil = RuleUtil(rule, AnalyzeRule())
+        oneSortUrl.value = getOneSort()
     }
 
     fun getHomeHtml() {
-        val url = getOneSort()
+        val url = oneSortUrl.value!!
         ruleUtil.setRequestUrl(url)
         if (ruleUtil.getRuleReqMethod().toLowerCase(Locale.ROOT) == "get") {
             homeStatusCode.postValue(1)
@@ -42,10 +47,13 @@ class DebugReqViewModel : NetWork.NetWorkCall, ViewModel() {
             NetWork.get(url.replace("@page", startPage.value.toString()), ruleUtil.getCooke(), this)
         } else {
             homeStatusCode.postValue(1)
-            NetWork.post(url,
-                ruleUtil.getNewData(url, startPage.value!!),
-                ruleUtil.getCooke(),
-                this)
+            thread {
+                NetWork.post(url,
+                    ruleUtil.getNewData(url, startPage.value!!),
+                    ruleUtil.getCooke(),
+                    this)
+            }
+
         }
     }
 
@@ -71,7 +79,8 @@ class DebugReqViewModel : NetWork.NetWorkCall, ViewModel() {
     override fun onResponse(call: Call, response: Response) {
         when (homeStatusCode.value) {
             1 -> {
-                val html = response.body!!.string()
+                val html = String(response.body!!.bytes(),
+                    charset = Charset.forName(ruleUtil.getCharset()))
                 val homeDataList = ruleUtil.getHomeList(html)
 
                 if (homeDataList.toString().isNotEmpty()) {
@@ -85,7 +94,10 @@ class DebugReqViewModel : NetWork.NetWorkCall, ViewModel() {
             }
 
             2 -> {
-                response.body!!.string().let {
+                val header = response.headers
+                header.let { Log.d("Content-Charset", it.toString()) }
+                String(response.body!!.bytes(),
+                    charset = Charset.forName(ruleUtil.getCharset())).let {
                     val imgList = ruleUtil.getImgList(it)
                     imageListData.postValue(imgList.toString())
                     val imageNextPageHref = ruleUtil.getImageNextPageHref(it,

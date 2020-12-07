@@ -1,3 +1,5 @@
+@file:Suppress("IMPLICIT_CAST_TO_ANY")
+
 package com.view.image.fileUtil
 
 import android.content.Context
@@ -7,7 +9,10 @@ import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
+import android.widget.ImageView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.view.image.R
@@ -21,10 +26,6 @@ import java.io.FileOutputStream
  */
 object ImageFile {
 
-
-    fun saveImage(context: Context, bitmap: Bitmap) {
-        MediaStore.Images.Media.insertImage(context.contentResolver, bitmap, "", "")
-    }
 
     /**
      * @param
@@ -134,6 +135,24 @@ object ImageFile {
                 }
             })
 
+
+    }
+
+    fun showImg(view: View, imageView: ImageView, imgUrl: String, referer: String = "") {
+        val glideUrl = when (referer) {
+            "" -> GlideUrl(imgUrl) {
+                val header: MutableMap<String, String> = HashMap()
+                //不一定都要添加，具体看原站的请求信息
+                header["Referer"] = referer
+                header
+            }
+            else -> imgUrl
+        }
+        Glide
+            .with(view)
+            .load(glideUrl)
+            .placeholder(R.drawable.ic_launcher_foreground)
+            .into(imageView)
 
     }
 }

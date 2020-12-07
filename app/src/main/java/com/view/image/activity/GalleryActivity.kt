@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.view.image.adapter.GalleryAdapter
 import com.view.image.analyzeRule.AnalyzeRule
+import com.view.image.analyzeRule.Rule
 import com.view.image.analyzeRule.RuleUtil
 import com.view.image.databinding.ActivityGalleryBinding
 import com.view.image.model.*
@@ -34,13 +35,17 @@ class GalleryActivity : AppCompatActivity() {
         val data = intent?.getSerializableExtra("data") as HomeData
         val rule = intent?.getSerializableExtra("rule") as Rule
 
+        title = data.imgTitle
+
         val galleryViewModel = ViewModelProvider(this).get(GalleryViewModel::class.java)
+
         galleryViewModel.ruleLive.observe(this, {
             galleryViewModel.setRuleUtil(RuleUtil(it, AnalyzeRule()))
         })
 
         galleryViewModel.setRule(rule)
         val galleryAdapter = GalleryAdapter()
+
         binding.recyclerView.apply {
             layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
             adapter = galleryAdapter
@@ -51,6 +56,7 @@ class GalleryActivity : AppCompatActivity() {
         })
 
         galleryViewModel.hrefLive.observe(this, {
+            galleryAdapter.setReferer(it)
             galleryViewModel.getImgList(it)
         })
 

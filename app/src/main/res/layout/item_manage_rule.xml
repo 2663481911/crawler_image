@@ -1,28 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_marginTop="1dp"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="60dp"
     android:background="@color/background">
 
-    <TextView
+    <LinearLayout
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:id="@+id/edit_rule_name"
         android:layout_width="wrap_content"
-        android:layout_height="@android:dimen/app_icon_size"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="15dp"
+        android:orientation="horizontal"
         android:layout_marginLeft="15dp"
-        android:gravity="center"
-        android:text="@string/add_local_rule"
-        tools:ignore="RelativeOverlap" />
+        tools:ignore="RelativeOverlap">
+
+
+        <CheckBox
+            android:id="@+id/checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+
+
+        <TextView
+
+            android:id="@+id/edit_rule_name"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/add_local_rule"
+            tools:ignore="RelativeOverlap" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="@color/background">
 
         <ImageButton
@@ -31,7 +45,7 @@
             android:id="@+id/top_image_view"
             android:contentDescription="@string/to_top"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginEnd="10dp"
             android:src="@drawable/top"
             tools:targetApi="lollipop" />
@@ -41,7 +55,7 @@
             android:id="@+id/edit_image_view"
             android:contentDescription="@string/edit_cur_rule"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:src="@drawable/edit"
             tools:targetApi="lollipop" />
 
@@ -50,7 +64,7 @@
             android:id="@+id/remove_image_view"
             android:layout_marginStart="10dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginEnd="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginLeft="10dp"
@@ -58,4 +72,5 @@
             android:src="@drawable/remove"
             tools:targetApi="lollipop" />
     </LinearLayout>
+
 </RelativeLayout>

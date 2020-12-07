@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.view.image.R
 import com.view.image.databinding.FragmentToolbarBinding
+import com.view.image.fileUtil.RuleFile
 import com.view.image.model.ManageRuleViewModel
 import com.view.image.model.SAVE_RULE_CODE
 
@@ -42,7 +43,7 @@ class ManageRuleToolbarFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.adjust_rule_toolbar_menu, menu)
+        inflater.inflate(R.menu.manage_rule_toolbar_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -62,6 +63,10 @@ class ManageRuleToolbarFragment : Fragment() {
                 Log.d("Manage", "saveHome")
                 manageRuleViewModel.saveRuleList()
                 activity?.finish()
+            }
+
+            R.id.share_rule -> {
+                RuleFile.shareRule(requireContext())
             }
         }
         return true

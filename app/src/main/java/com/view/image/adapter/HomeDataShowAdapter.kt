@@ -1,6 +1,5 @@
 package com.view.image.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,8 +7,8 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.*
-import com.bumptech.glide.Glide
 import com.view.image.R
+import com.view.image.fileUtil.ImageFile
 import com.view.image.model.DATA_STATUS_LOAD_NORMAL
 import com.view.image.model.DATA_STATUS_NETWORK_ERROR
 import com.view.image.model.DATA_STATUS_NOR_MORE
@@ -25,6 +24,11 @@ class HomeDataShowAdapter :
 
     var listener: ClickListener? = null
     var footerViewStatus = DATA_STATUS_LOAD_NORMAL     // 用于底部状态改变
+    private var referer: String = ""
+
+    fun setReferer(referer: String) {
+        this.referer = referer
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HomeViewHolder {
         val itemView = if (viewType == FOOTER_VIEW_TYPE)
@@ -76,11 +80,13 @@ class HomeDataShowAdapter :
             return
         } else {
             val imageView: ImageView = holder.itemView.findViewById(R.id.image_view)
-            Log.d("imgSrc", getItem(position).imgSrc)
-            Glide.with(holder.itemView)
-                .load(getItem(position).imgSrc)
-                .placeholder(R.drawable.ic_launcher_foreground)
-                .into(imageView)
+//            Log.d("imgSrc", getItem(position).imgSrc)
+            ImageFile.showImg(holder.itemView, imageView, getItem(position).imgSrc, referer)
+
+//            Glide.with(holder.itemView)
+//                .load(getItem(position).imgSrc)
+//                .placeholder(R.drawable.ic_launcher_foreground)
+//                .into(imageView)
 
 
             holder.itemView.findViewById<ImageView>(R.id.image_view).setOnClickListener {

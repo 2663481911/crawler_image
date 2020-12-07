@@ -5,14 +5,16 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.view.image.analyzeRule.Rule
 import com.view.image.fileUtil.RuleFile
 
 class ManageRuleViewModel(application: Application) : AndroidViewModel(application) {
     private val _changRule = MutableLiveData(false)
-    private val _ruleListLiveData = MutableLiveData<List<Rule>>()
+    private val _ruleListLiveData = MutableLiveData<ArrayList<Rule>>()
     private val _editPosition = MutableLiveData<Int>()
+    val editChange = MutableLiveData(false)
     var toTopPos = 0
-    val ruleListLiveData: LiveData<List<Rule>>
+    val ruleListLiveData: LiveData<ArrayList<Rule>>
         get() = _ruleListLiveData
 
     val editPosition: LiveData<Int>
@@ -21,24 +23,27 @@ class ManageRuleViewModel(application: Application) : AndroidViewModel(applicati
     val changRule: LiveData<Boolean>
         get() = _changRule
 
+    fun editChange(isEditChang: Boolean) {
+        editChange.value = isEditChang
+    }
+
     // 删除规则
     fun removeRule(position: Int) {
         toTopPos = position
         _changRule.value = true
-        val ruleMutableList = _ruleListLiveData.value?.toMutableList()
-        ruleMutableList?.removeAt(position)
-        _ruleListLiveData.value = ruleMutableList
-
+//        val ruleList = _ruleListLiveData.value
+//        ruleList?.removeAt(position)
+//        _ruleListLiveData.value = ruleList
     }
 
     // 置顶规则
     fun ruleToTop(position: Int) {
         toTopPos = position
         _changRule.value = true
-        Log.d("position", position.toString())
-        val ruleMutableList = _ruleListLiveData.value?.toMutableList()
-        ruleMutableList?.add(0, ruleMutableList.removeAt(position))
-        _ruleListLiveData.value = ruleMutableList
+//        Log.d("position", position.toString())
+//        val ruleList = _ruleListLiveData.value
+//        ruleList?.add(0, ruleList.removeAt(position))
+//        _ruleListLiveData.value = ruleList
     }
 
     // 编辑规则

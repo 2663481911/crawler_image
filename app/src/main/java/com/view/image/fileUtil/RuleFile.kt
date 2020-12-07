@@ -1,9 +1,11 @@
 package com.view.image.fileUtil
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.view.image.model.Rule
+import com.view.image.analyzeRule.Rule
 import com.view.image.setting.Setting
 import org.json.JSONArray
 import java.io.*
@@ -18,7 +20,7 @@ object RuleFile {
             val path = context.getExternalFilesDir(null)?.path
             inputStream = FileInputStream(File(path, Setting.RULE_FILE_NAME))
             val reader = BufferedReader(InputStreamReader(inputStream, "utf-8"))
-            var str: String? = ""
+            var str: String?
             while (reader.readLine().also { str = it } != null) {
                 string.append(str)
             }
@@ -29,6 +31,23 @@ object RuleFile {
             inputStream?.close()
         }
         return string.toString()
+    }
+
+    fun shareRule(context: Context) {
+        val path = context.getExternalFilesDir(null)?.path
+        val imgUri = Uri.parse(File(path, Setting.RULE_FILE_NAME).path)
+        var shareIntent = Intent()
+        shareIntent.addFlags(
+            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent
+                .FLAG_GRANT_WRITE_URI_PERMISSION
+        )
+        shareIntent.action = Intent.ACTION_SEND
+        shareIntent.putExtra(Intent.EXTRA_STREAM, imgUri)
+
+        shareIntent.type = "text/*"
+        //切记需要使用Intent.createChooser，否则会出现别样的应用选择框，您可以试试
+        shareIntent = Intent.createChooser(shareIntent, "分享规则")
+        context.startActivity(shareIntent)
     }
 
     fun saveRule(context: Context, str: String) {
@@ -58,13 +77,13 @@ object RuleFile {
     }
 
     fun addRule(context: Context, rule: Rule) {
-        val ruleList = ruleStrToArrayRule(readRule(context)).toMutableList()
+        val ruleList = ruleStrToArrayRule(readRule(context))
         ruleList.add(0, rule)
         saveRule(context, ruleList)
     }
 
     fun editRule(context: Context, newRule: Rule, oldRulePosition: Int = 0) {
-        val ruleList = ruleStrToArrayRule(readRule(context)).toMutableList()
+        val ruleList = ruleStrToArrayRule(readRule(context))
         ruleList.removeAt(oldRulePosition)
         ruleList.add(oldRulePosition, newRule)
         saveRule(context, ruleList)
@@ -73,7 +92,7 @@ object RuleFile {
     /**
      * 把rule字符串转为rule列表
      */
-    fun ruleStrToArrayRule(str: String): List<Rule> {
+    fun ruleStrToArrayRule(str: String): ArrayList<Rule> {
         val ruleStr = when {
             str.startsWith("{") -> "[$str]"
             else -> str

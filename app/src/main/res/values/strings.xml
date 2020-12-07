@@ -49,4 +49,7 @@
     <string name="down_all">下载全部</string>
     <string name="req">请求地址</string>
     <string name="rule_img_next_page">下一页规则</string>
+    <string name="source_charset">编码</string>
+    <string name="share_rule">分享规则</string>
+    <string name="all_select">全选</string>
 </resources>

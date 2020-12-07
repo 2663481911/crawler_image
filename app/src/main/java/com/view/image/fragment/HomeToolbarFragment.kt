@@ -18,10 +18,14 @@ import com.google.gson.Gson
 import com.view.image.R
 import com.view.image.activity.ManageRuleActivity
 import com.view.image.activity.RuleActivity
+import com.view.image.analyzeRule.Rule
 import com.view.image.databinding.FragmentToolbarBinding
 import com.view.image.fileUtil.ClipBoar
 import com.view.image.fileUtil.RuleFile
-import com.view.image.model.*
+import com.view.image.model.ADD_RULE_CODE
+import com.view.image.model.EDIT_RULE_CODE
+import com.view.image.model.HomeRuleViewModel
+import com.view.image.model.PICK_FILE
 
 
 class HomeToolbarFragment : Fragment() {

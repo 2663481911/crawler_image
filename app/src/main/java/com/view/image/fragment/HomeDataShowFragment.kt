@@ -35,6 +35,7 @@ class HomeDataShowFragment : Fragment() {
         val homeDataShowAdapter = HomeDataShowAdapter()
 //        val layoutManager = GridLayoutManager(requireContext(), 2)
         val layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+
         fragmentBinding.recyclerView.apply {
             adapter = homeDataShowAdapter
             this.layoutManager = layoutManager
@@ -46,7 +47,6 @@ class HomeDataShowFragment : Fragment() {
 
         homeDataShowAdapter.setOnClickListener(object : HomeDataShowAdapter.ClickListener {
             override fun setOnClickListener(view: View, data: HomeData) {
-
                 ruleViewModel.ruleLive.value?.let {
                     GalleryActivity.actionStart(requireContext(), data, it)
                 }
@@ -80,6 +80,10 @@ class HomeDataShowFragment : Fragment() {
             homeDataViewModel.isRefresh = true
             homeDataViewModel.setPageNum(1)
             homeDataViewModel.getHomeDataList()
+        })
+
+        homeDataViewModel.curReqUrl.observe(viewLifecycleOwner, {
+            homeDataShowAdapter.setReferer(it)
         })
 
 
