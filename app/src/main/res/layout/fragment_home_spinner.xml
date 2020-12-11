@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/background"
-    tools:context=".fragment.HomeSpinnerFragment">
+    tools:context=".home.HomeSpinnerFragment">
 
     <Spinner
         android:id="@+id/spinner_view"

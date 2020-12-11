@@ -33,9 +33,9 @@ object RuleFile {
         return string.toString()
     }
 
-    fun shareRule(context: Context) {
+    fun shareRule(context: Context, name: String? = null) {
         val path = context.getExternalFilesDir(null)?.path
-        val imgUri = Uri.parse(File(path, Setting.RULE_FILE_NAME).path)
+        val imgUri = Uri.parse(File(path, name ?: Setting.RULE_FILE_NAME).path)
         var shareIntent = Intent()
         shareIntent.addFlags(
             Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent
@@ -102,18 +102,6 @@ object RuleFile {
 
     }
 
-    /**
-     * 当前位置的rule置顶
-     * @param ruleList rule列表
-     * @param curRulePosition 当前rule位置
-     */
-    fun moveCutRulePositionIn0(ruleList: List<Rule>, curRulePosition: Int): List<Rule> {
-        ruleList.toMutableList().also {
-            val curRule = it.removeAt(curRulePosition)
-            it.add(0, curRule)
-            return it
-        }
-    }
 
     /**
      * 获取全部的rule的名字列表

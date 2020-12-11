@@ -15,6 +15,10 @@ import com.view.image.adapter.ManageRuleAdapter
 import com.view.image.databinding.FragmentManageRuleBinding
 import com.view.image.model.EDIT_RULE_CODE
 import com.view.image.model.ManageRuleViewModel
+import com.view.image.model.ManageRuleViewModel.Companion.ALL_SELECT
+import com.view.image.model.ManageRuleViewModel.Companion.NOR_SELECT
+import com.view.image.model.ManageRuleViewModel.Companion.REMOVE_SELECT_RULE
+import com.view.image.model.ManageRuleViewModel.Companion.SHARE_SELECT_RULE
 import com.view.image.model.SAVE_RULE_CODE
 
 
@@ -53,16 +57,40 @@ class ManageRuleFragment : Fragment() {
 
         binding.recyclerView.adapter = editAdapter
 
+        // 禁用动画，页面更新时闪烁问题
         (binding.recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+        // 添加分割线
         binding.recyclerView.addItemDecoration(DividerItemDecoration(requireContext(),
             DividerItemDecoration.VERTICAL))
 
+        // 规则是否改变
         manageRuleViewModel.editChange.observe(viewLifecycleOwner, {
             if (it) {
                 manageRuleViewModel.editPosition.value?.let { position ->
                     editAdapter.updateItem(manageRuleViewModel.ruleListLiveData.value!![position],
                         position)
                 }
+            }
+        })
+
+
+        manageRuleViewModel.selectShareOrRemove.observe(viewLifecycleOwner, {
+            when (it) {
+                REMOVE_SELECT_RULE -> {
+                    editAdapter.removeRuleList()
+                    manageRuleViewModel.initSelectShareOrRemove()
+                }
+                SHARE_SELECT_RULE -> {
+                    manageRuleViewModel.selectCheckbox.value = editAdapter.getCheckboxMap()
+                    manageRuleViewModel.initSelectShareOrRemove()
+                }
+            }
+        })
+
+        manageRuleViewModel.selectAllOrNor.observe(viewLifecycleOwner, {
+            when (it) {
+                ALL_SELECT -> editAdapter.setCheckboxAll()
+                NOR_SELECT -> editAdapter.setCheckboxNor()
             }
         })
 
@@ -73,7 +101,7 @@ class ManageRuleFragment : Fragment() {
         when (resultCode) {
             SAVE_RULE_CODE -> {
                 manageRuleViewModel.editChange(true)
-                manageRuleViewModel.changRuleVale()
+                manageRuleViewModel.changRuleListVale()
                 manageRuleViewModel.setRuleList()
             }
         }

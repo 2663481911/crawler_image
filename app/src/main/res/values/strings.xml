@@ -52,4 +52,6 @@
     <string name="source_charset">编码</string>
     <string name="share_rule">分享规则</string>
     <string name="all_select">全选</string>
+    <string name="share_select_rule">分享选中规则</string>
+    <string name="remove_select_rule">删除选中规则</string>
 </resources>

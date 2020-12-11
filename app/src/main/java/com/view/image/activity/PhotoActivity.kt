@@ -62,8 +62,8 @@ class PhotoActivity : AppCompatActivity() {
             // menu的item点击事件
             popupMenu.setOnMenuItemClickListener(object : MenuItem.OnMenuItemClickListener,
                 PopupMenu.OnMenuItemClickListener {
-                override fun onMenuItemClick(item: MenuItem): Boolean {
-                    when (item.itemId) {
+                override fun onMenuItemClick(item: MenuItem?): Boolean {
+                    when (item!!.itemId) {
                         R.id.save_img -> {
                             ActivityCompat.requestPermissions(this@PhotoActivity,
                                 arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), SAVE_FILE)

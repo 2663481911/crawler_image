@@ -74,3 +74,4 @@ class NetWork {
         fun onResponse(call: Call, response: Response)
     }
 }
+

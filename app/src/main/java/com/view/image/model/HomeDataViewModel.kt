@@ -54,7 +54,7 @@ class HomeDataViewModel(application: Application) : AndroidViewModel(application
      * 获取sort请求地址
      */
     fun setUrl(name: String) {
-        ruleUtil!!.getSortMap()[name]?.let {
+        ruleUtil!!.sortMap[name]?.let {
             val hrefList = ruleUtil!!.getIndexHref(it)
             if (hrefList.size == 2) {
                 if (pageNum.value == 1)
@@ -68,8 +68,8 @@ class HomeDataViewModel(application: Application) : AndroidViewModel(application
 
     }
 
-    fun getSortNameList(): Set<String>? {
-        return ruleUtil?.getSortMap()?.keys
+    fun getSortNameList(): ArrayList<String>? {
+        return ruleUtil?.sortNameList
     }
 
     fun setRuleUtil(rule: Rule) {
@@ -114,14 +114,14 @@ class HomeDataViewModel(application: Application) : AndroidViewModel(application
                 // 获取请求地址
                 dataUrl.value?.replace("@page", _pageNum.value.toString())?.let {
                     _curReqUrl.value = it
-                    NetWork.get(it, ruleUtil!!.getCooke(), this)
+                    NetWork.get(it, ruleUtil!!.rule.cookie, this)
                 }
             }
             else -> {
                 dataUrl.value?.replace("@page", _pageNum.value.toString())?.let {
                     thread {
                         val data = ruleUtil?.getNewData(_dataUrl.value!!, _pageNum.value!!)
-                        NetWork.post(it, data!!, ruleUtil!!.getCooke(), this)
+                        NetWork.post(it, data!!, ruleUtil!!.rule.cookie, this)
                     }
                 }
 

@@ -53,9 +53,11 @@ class HomeDataShowFragment : Fragment() {
             }
 
         })
+
         if (homeDataViewModel.photoListLive.value.isNullOrEmpty()) {
             homeDataShowAdapter.submitList(homeDataViewModel.photoListLive.value)
         }
+
         //观察数据变化
         homeDataViewModel.photoListLive.observe(this.viewLifecycleOwner, {
             homeDataShowAdapter.submitList(it)

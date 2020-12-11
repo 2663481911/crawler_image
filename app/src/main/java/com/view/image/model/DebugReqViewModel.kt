@@ -28,8 +28,8 @@ class DebugReqViewModel : NetWork.NetWorkCall, ViewModel() {
 
 
     private fun getOneSort(): String {
-        if (ruleUtil.getSortMap().isNotEmpty())
-            return ruleUtil.getSortMap().values.random()
+        if (ruleUtil.sortHrefList.isNotEmpty())
+            return ruleUtil.sortHrefList[0]
         return ""
     }
 
@@ -44,13 +44,15 @@ class DebugReqViewModel : NetWork.NetWorkCall, ViewModel() {
         if (ruleUtil.getRuleReqMethod().toLowerCase(Locale.ROOT) == "get") {
             homeStatusCode.postValue(1)
             homeReqSrc.postValue(url.replace("@page", startPage.value.toString()))
-            NetWork.get(url.replace("@page", startPage.value.toString()), ruleUtil.getCooke(), this)
+            NetWork.get(url.replace("@page", startPage.value.toString()),
+                ruleUtil.rule.cookie,
+                this)
         } else {
             homeStatusCode.postValue(1)
             thread {
                 NetWork.post(url,
                     ruleUtil.getNewData(url, startPage.value!!),
-                    ruleUtil.getCooke(),
+                    ruleUtil.rule.cookie,
                     this)
             }
 
@@ -72,7 +74,7 @@ class DebugReqViewModel : NetWork.NetWorkCall, ViewModel() {
             val href = homeHref.value?.get(0)
             Log.d("href", href.toString())
             homeStatusCode.postValue(2)
-            NetWork.get(href.toString(), ruleUtil.getCooke(), this)
+            NetWork.get(href.toString(), ruleUtil.rule.cookie, this)
         }
     }
 

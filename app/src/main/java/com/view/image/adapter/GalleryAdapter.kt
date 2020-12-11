@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -41,7 +42,11 @@ class GalleryAdapter : ListAdapter<String, GalleryAdapter.GalleryViewHolder>(Dif
 //            .placeholder(R.drawable.ic_launcher_foreground)
 //            .into(holder.imageView)
 
-        ImageFile.showImg(holder.itemView, holder.imageView, getItem(position), referer)
+        ImageFile.showImg(holder.itemView,
+            holder.imageView,
+            getItem(position),
+            referer,
+            holder.textView)
 
         holder.imageView.setOnClickListener {
             listener?.setOnClickListener(it, position)
@@ -62,6 +67,7 @@ class GalleryAdapter : ListAdapter<String, GalleryAdapter.GalleryViewHolder>(Dif
 
     class GalleryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView = itemView.findViewById(R.id.imageView)
+        val textView: TextView = itemView.findViewById(R.id.gallery_text)
     }
 }
 

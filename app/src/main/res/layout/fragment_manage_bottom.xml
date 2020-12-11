@@ -1,20 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/bottom_layout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="#869D9F"
-    android:orientation="horizontal">
+    android:layout_height="40dp"
+    android:background="@color/background_bottom"
+    android:orientation="horizontal"
+    tools:ignore="RtlHardcoded">
 
     <CheckBox
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
         android:id="@+id/all_select"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    
+        android:layout_marginStart="15dp"
+        android:layout_marginLeft="15dp" />
+
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignRight="@id/all_select"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="-11dp"
+        android:gravity="center"
         android:text="@string/all_select" />
 
+    <ImageButton
+        android:id="@+id/menu_group"
+        android:layout_width="wrap_content"
+        android:layout_alignParentRight="true"
+        android:backgroundTint="@color/background_bottom"
+        android:src="@drawable/menu_group"
+        android:layout_height="wrap_content"
+        tools:ignore="ContentDescription"
+        tools:targetApi="lollipop" />
 
-</LinearLayout>
+
+</RelativeLayout>

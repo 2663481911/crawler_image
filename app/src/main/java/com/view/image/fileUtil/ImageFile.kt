@@ -11,14 +11,19 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.view.image.R
+import okhttp3.MediaType
+import okhttp3.ResponseBody
+import okio.*
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
+import java.io.IOException
 
 
 /**
@@ -95,11 +100,6 @@ object ImageFile {
                 .FLAG_GRANT_WRITE_URI_PERMISSION
         )
         shareIntent.action = Intent.ACTION_SEND
-        //其中imgUri为图片的标识符
-//    shareIntent.setPackage("com.tencent.mm");
-//    val cop = ComponentName("com.tencent.mm", "com.tencent.mm.ui.tools.ShareImgUI")
-//    shareIntent.setPackage("com.tencent.mobileqq")
-//    shareIntent.component = cop
         shareIntent.putExtra(Intent.EXTRA_STREAM, imgUri)
 
         shareIntent.type = "image/*"
@@ -138,7 +138,13 @@ object ImageFile {
 
     }
 
-    fun showImg(view: View, imageView: ImageView, imgUrl: String, referer: String = "") {
+    fun showImg(
+        view: View,
+        imageView: ImageView,
+        imgUrl: String,
+        referer: String = "",
+        textView: TextView? = null,
+    ) {
         val glideUrl = when (referer) {
             "" -> GlideUrl(imgUrl) {
                 val header: MutableMap<String, String> = HashMap()
@@ -148,11 +154,125 @@ object ImageFile {
             }
             else -> imgUrl
         }
+
         Glide
             .with(view)
             .load(glideUrl)
             .placeholder(R.drawable.ic_launcher_foreground)
             .into(imageView)
 
+//        val request: Request = Request.Builder()
+//            .url(imgUrl)
+//            .header("Referer", referer)
+//            .build()
+//
+//        val progressListener: Progress.ProgressListener = object : Progress.ProgressListener {
+//            var firstUpdate = true
+//
+//            // 更新进度条
+//            @SuppressLint("SetTextI18n")
+//            override fun update(bytesRead: Long, contentLength: Long, done: Boolean) {
+//                if (done) {
+//                    println("completed")
+//                } else {
+//                    if (firstUpdate) {
+//                        firstUpdate = false
+//                        if (contentLength == -1L) {
+//                            println("content-length: unknown")
+//                        } else {
+//                            // 获取长度
+////                            System.out.format("content-length: %d\n", contentLength)
+//
+//                        }
+//                    }
+//                    // 更新进度条
+//                    if (contentLength != -1L) {
+////                        System.out.format("%d%% done\n", 100 * bytesRead / contentLength)
+//                        textView?.text = "${100 * bytesRead / contentLength}%"
+//                    }
+//                }
+//            }
+//        }
+//
+//        val client: OkHttpClient = OkHttpClient.Builder()
+//            // 添加网络拦截器
+//            .addNetworkInterceptor(Interceptor { chain: Interceptor.Chain ->
+//                val originalResponse = chain.proceed(chain.request())
+//                // 原始回应
+//                originalResponse.newBuilder()
+//                    .body(Progress.ProgressResponseBody(originalResponse.body, progressListener))
+//                    .build()
+//            })
+//            .build()
+//
+//        client.newCall(request).enqueue(object  :Callback{
+//            override fun onFailure(call: Call, e: IOException) {
+//                TODO("Not yet implemented")
+//            }
+//
+//            override fun onResponse(call: Call, response: Response) {
+//                val body = response.body
+//                val bytes = body!!.bytes()
+//
+//                view.post {
+//                    textView?.visibility = View.GONE
+//                    Glide
+//                        .with(view)
+//                        .load(bytes)
+//                        .placeholder(R.drawable.ic_launcher_foreground)
+//                        .into(imageView)
+//                }
+//            }
+//
+//        })
+
+
+    }
+}
+
+class Progress {
+    // 进度响应
+    class ProgressResponseBody(
+        private val responseBody: ResponseBody?,
+        private val progressListener: ProgressListener,
+    ) :
+        ResponseBody() {
+        private var bufferedSource: BufferedSource? = null
+        override fun contentType(): MediaType? {
+            return responseBody!!.contentType()
+        }
+
+
+        override fun contentLength(): Long {
+            return responseBody!!.contentLength()
+        }
+
+
+        override fun source(): BufferedSource {
+            if (bufferedSource == null) {
+                bufferedSource = source(responseBody!!.source()).buffer()
+            }
+            return bufferedSource!!
+        }
+
+        private fun source(source: Source): Source {
+            return object : ForwardingSource(source) {
+                var totalBytesRead = 0L
+
+                @Throws(IOException::class)
+                override fun read(sink: Buffer, byteCount: Long): Long {
+                    val bytesRead = super.read(sink, byteCount)
+                    // read() returns the number of bytes read, or -1 if this source is exhausted.
+                    totalBytesRead += if (bytesRead != -1L) bytesRead else 0
+                    progressListener.update(totalBytesRead, responseBody!!.contentLength(),
+                        bytesRead == -1L)
+                    return bytesRead
+                }
+            }
+        }
+    }
+
+    interface ProgressListener {
+        fun update(bytesRead: Long, contentLength: Long, done: Boolean)
     }
 }

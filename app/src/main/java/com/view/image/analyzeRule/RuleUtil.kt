@@ -23,7 +23,7 @@ enum class RuleType {
 
 @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS",
     "RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
+class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
     private val engine: ScriptEngine = ScriptEngineManager().getEngineByName("javascript")
 
     /**
@@ -33,6 +33,44 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
     private val ruleRe = "@RE"
     private val ruleJson = "@JSON"
     private val ruleXpath = "@XPATH"
+
+    val sortNameList = ArrayList<String>()
+    val sortMap = HashMap<String, String>()
+    val sortHrefList = ArrayList<String>()
+
+    /**
+     * 获取类型Map
+     */
+    init {
+        if (rule.reqMethod.toLowerCase(Locale.ROOT) == "get") {
+            val sortList = rule.sortUrl.trim().split("\n")
+            for (sort in sortList) {
+                sort.trim().split("::").also {
+                    if (it.size == 2) {
+                        sortNameList.add(it[0].trim())
+                        sortHrefList.add(it[1].trim())
+                        sortMap[it[0].trim()] = it[1].trim()
+                    }
+                }
+
+            }
+        } else {
+            for (sort in rule.sortUrl.trim().split("\n")) {
+                sort.trim().split("::", limit = 2).also { sortList ->
+                    if (sortList.size == 2)
+                        sortList[1].trim().split(",", limit = 2).also {
+                            Log.d("data", it.size.toString() + it.toString())
+                            if (it.size == 2) {
+                                sortNameList.add(sortList[0].trim())
+                                sortHrefList.add(it[0].trim())
+                                sortMap[sortList[0]] = it[0].trim()
+                            }
+                        }
+                }
+            }
+        }
+    }
+
 
     fun getCharset(): String {
         if (rule.charset == "")
@@ -112,33 +150,6 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
 
     }
 
-    /**
-     * 获取类型Map
-     */
-    fun getSortMap(): Map<String, String> {
-        val sortMap = HashMap<String, String>()
-        if (rule.reqMethod.toLowerCase(Locale.ROOT) == "get") {
-            val sortList = rule.sortUrl.trim().split("\n")
-            for (sort in sortList) {
-                sort.trim().split("::").also {
-                    if (it.size == 2)
-                        sortMap[it[0].trim()] = it[1].trim()
-                }
-
-            }
-        } else {
-            for (sort in rule.sortUrl.trim().split("\n")) {
-                sort.trim().split("::", limit = 2).also { sortList ->
-                    if (sortList.size == 2)
-                        sortList[1].trim().split(",", limit = 2).also {
-                            Log.d("data", it.size.toString() + it.toString())
-                            if (it.size == 2) sortMap[sortList[0]] = it[0].trim()
-                        }
-                }
-            }
-        }
-        return sortMap
-    }
 
 
     /**
@@ -286,9 +297,6 @@ class RuleUtil(private val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDa
     }
 
 
-    fun getCooke(): String {
-        return rule.cookie
-    }
 
     fun getIndexHref(href: String): List<String> {
         val regex = "<(.*),(.*)>"

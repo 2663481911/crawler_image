@@ -30,6 +30,10 @@ class ManageRuleAdapter(
 
     }
 
+    override fun getItemCount(): Int {
+        return ruleList.size
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ManageRuleHolder {
         val itemView =
             LayoutInflater.from(parent.context).inflate(R.layout.item_manage_rule, parent, false)
@@ -39,36 +43,111 @@ class ManageRuleAdapter(
 
     override fun onBindViewHolder(holder: ManageRuleHolder, position: Int) {
 
+        // 删除规则
         holder.remoteView.setOnClickListener {
-            removeItem(position)
-            manageRuleViewModel.removeRule(position)
+            removeRule(position)
         }
 
+        // 编辑规则
         holder.editView.setOnClickListener {
             manageRuleViewModel.editRule(position)
         }
 
+        // 置顶
         holder.toTopView.setOnClickListener {
-            val rule = ruleList[position]
-            removeItem(position)
-            addItem(0, rule)
-            manageRuleViewModel.ruleToTop(position)
+            toTopRule(position)
         }
+
         holder.nameTextView.text = ruleList[position].sourceName
 
         holder.checkbox.setOnCheckedChangeListener { _, isChecked ->
-            checkboxMap[position] = isChecked
+            (checkboxMap.containsKey(position)).also { checkboxMap.remove(position) }
+            if (isChecked) checkboxMap[position] = isChecked
         }
+
+        (checkboxMap.containsKey(position)).also { holder.checkbox.isChecked = it }
+    }
+
+    // 改变选中的位置，用于置顶，删除后选中position不乱
+    private fun changeCheckboxKeys(position: Int, isToTop: Boolean = false) {
+        val keys = checkboxMap.keys.toList()
+        for (pos in keys) {
+            when {
+                pos > position ->
+                    if (!isToTop) {
+                        checkboxMap.remove(pos)
+                        checkboxMap[pos - 1] = true
+                    }
+
+                position == pos -> {
+                    if (!isToTop) checkboxMap.remove(position)
+                    else {
+                        checkboxMap[0] = true
+                        if (pos - 1 !in keys) {
+                            checkboxMap.remove(pos)
+                        }
+                    }
+                }
+
+                pos < position -> {
+                    if (isToTop) {
+                        if (pos - 1 !in keys) {
+                            checkboxMap.remove(pos)
+                        }
+                        checkboxMap[pos + 1] = true
+                    }
+                }
+            }
+
+
+        }
+
     }
 
     fun getCheckboxMap(): HashMap<Int, Boolean> {
         return checkboxMap
     }
 
-    override fun getItemCount(): Int {
-        return ruleList.size
+    fun removeRuleList() {
+        val keys = checkboxMap.keys.toList().reversed()
+        for (pos in keys) {
+            removeRule(pos)
+        }
+        setCheckboxNor()
+
+
     }
 
+    // 删除规则
+    private fun removeRule(position: Int) {
+        removeItem(position)
+        manageRuleViewModel.changRuleListVale()
+        changeCheckboxKeys(position)
+    }
+
+    private fun toTopRule(position: Int) {
+        val rule = ruleList[position]
+        removeItem(position)
+        addItem(0, rule)
+        manageRuleViewModel.changRuleListVale()
+        changeCheckboxKeys(position, true)
+    }
+
+    // 全不选
+    fun setCheckboxNor() {
+        checkboxMap.clear()
+        notifyDataSetChanged()
+    }
+
+    // 全选
+    fun setCheckboxAll() {
+        for (i in ruleList.indices) {
+            checkboxMap[i] = true
+        }
+        notifyDataSetChanged()
+    }
+
+    // 编辑规则后更新item
     fun updateItem(rule: Rule, position: Int) {
         synchronized(lock) {
             ruleList[position] = rule
