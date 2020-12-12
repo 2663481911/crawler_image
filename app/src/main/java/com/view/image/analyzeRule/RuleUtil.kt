@@ -24,7 +24,13 @@ enum class RuleType {
 @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS",
     "RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
-    private val engine: ScriptEngine = ScriptEngineManager().getEngineByName("javascript")
+    private var engine: ScriptEngine? = null
+        get() {
+            if (field == null) {
+                field = ScriptEngineManager().getEngineByName("javascript")
+            }
+            return field
+        }
 
     /**
      * 规则是什么类型,
@@ -101,14 +107,14 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
     fun getNewData(url: String, page: Int): String {
         val data = getDataToUrl(url)
         val jsStr = rule.jsMethod
-        if (rule.js.isNotEmpty() && engine["js"] == null) {
+        if (rule.js.isNotEmpty() && engine!!["js"] == null) {
             Log.d("js", "js")
-            analyzeRuleDao.addJs(rule.js, engine)
+            analyzeRuleDao.addJs(rule.js, engine!!)
         }
-        engine.put("data", data)
-        engine.put("page", page)
-        engine.eval(jsStr)
-        return engine.get("data").toString()
+        engine!!.put("data", data)
+        engine!!.put("page", page)
+        engine!!.eval(jsStr)
+        return engine!!.get("data").toString()
     }
 
     /**
@@ -175,10 +181,10 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
         val ruleStr = getRuleString(ruleString)
         return when (stringType(ruleString)) {
             JS -> {
-                if (rule.js.isNotEmpty() && engine["js"] == null) {
-                    analyzeRuleDao.addJs(rule.js, engine)
+                if (rule.js.isNotEmpty() && engine!!["js"] == null) {
+                    analyzeRuleDao.addJs(rule.js, engine!!)
                 }
-                engine.let { analyzeRuleDao.analyzeByJS(ruleStr, result, it) }
+                engine?.let { analyzeRuleDao.analyzeByJS(ruleStr, result, it) }
             }
             RE -> analyzeRuleDao.analyzeRuleByRe(ruleStr, result)
             JSON -> analyzeRuleDao.analyzeRuleJson(ruleStr, result)
@@ -293,7 +299,7 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
      * @param imgSrc 图片地址
      */
     private fun imgSrcReplaceByJS(jsStr: String, imgSrc: String): String {
-        return engine.let { analyzeRuleDao.analyzeByJsReplace(jsStr, imgSrc, it) }
+        return analyzeRuleDao.analyzeByJsReplace(jsStr, imgSrc, engine!!)
     }
 
 
