@@ -1,4 +1,5 @@
 <resources>
+    <string name="app_path">com.view.image</string>
     <string name="app_name">image</string>
     <string name="normal_load">正在加载…</string>
     <string name="network_error">发生错误…</string>

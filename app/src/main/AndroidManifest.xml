@@ -18,12 +18,23 @@
         android:theme="@style/Theme.Image"
         android:usesCleartextTraffic="true"
         tools:targetApi="n">
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.view.image"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+
+        </provider>
         <!--        android:launchMode="singleTop"  用于顶部只有一个相同的activity 可以防止多少点击创建多个activity-->
         <activity
-            android:name=".activity.DebugActivity"
+            android:name=".debug.DebugActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name=".activity.ManageRuleActivity"
+            android:name=".manage.ManageRuleActivity"
             android:launchMode="singleTop">
             <!--            <intent-filter>-->
             <!--                <action android:name="android.intent.action.MAIN" />-->
@@ -32,18 +43,18 @@
             <!--            </intent-filter>-->
         </activity>
         <activity
-            android:name=".activity.RuleActivity"
+            android:name=".rule.RuleActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name=".activity.PhotoActivity"
+            android:name=".photo.PhotoActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name=".activity.GalleryActivity"
+            android:name=".page.PageActivity"
             android:launchMode="singleTop" />
 
 
         <activity
-            android:name=".activity.MainActivity"
+            android:name=".home.MainActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

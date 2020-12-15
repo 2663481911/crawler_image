@@ -1,28 +1,31 @@
-@file:Suppress("IMPLICIT_CAST_TO_ANY")
+@file:Suppress("IMPLICIT_CAST_TO_ANY", "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 
 package com.view.image.fileUtil
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.RequiresApi
+import androidx.core.content.FileProvider
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.model.GlideUrl
-import com.bumptech.glide.request.target.SimpleTarget
-import com.bumptech.glide.request.transition.Transition
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.view.image.R
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import okio.*
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
+import java.io.*
 import java.io.IOException
 
 
@@ -30,7 +33,6 @@ import java.io.IOException
  * 图片处理
  */
 object ImageFile {
-
 
     /**
      * @param
@@ -43,7 +45,6 @@ object ImageFile {
         //如果状态不是mounted，无法读写
         if (state != Environment.MEDIA_MOUNTED) return ""
         val absolutePath = Environment.getExternalStorageDirectory().absolutePath
-        Log.d("imgUrl", url)
         val path = "$absolutePath/${context.resources.getString(R.string.app_name)}/$name/"
         val fileName: String = File(url).name.replace(Regex("\\?.*"), "")
         try {
@@ -51,22 +52,59 @@ object ImageFile {
                 File(path).mkdirs()
                 Log.d("download_img", "创建文件夹$path")
             }
-            val file = File("$path$fileName")
-            val bitmap = Glide.with(context)
-                .asBitmap()
-                .load(url)
-                .submit().get()
-            val out = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
-            out.flush()
-            out.close()
-
+            val file = File(path, fileName)
+            glideSaveImg(context, url, file)
             val uri: Uri = Uri.fromFile(file)
-            context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri))
+            broadcast(context, uri)
         } catch (e: Exception) {
             e.printStackTrace()
         }
         return "$path$fileName"
+    }
+
+    /**
+     * glide保存图片
+     * @param context 上下文
+     * @param url 图片地址
+     * @param file 保存的文件
+     */
+    private fun glideSaveImg(context: Context, url: String, file: File) {
+        Glide.with(context)
+            .download(url).listener(object : RequestListener<File> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<File>?,
+                    isFirstResource: Boolean,
+                ): Boolean {
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: File?,
+                    model: Any?,
+                    target: Target<File>?,
+                    dataSource: DataSource?,
+                    isFirstResource: Boolean,
+                ): Boolean {
+                    copyFile(resource, file)
+                    return false
+                }
+            }).submit()
+    }
+
+    //刷新相册
+    private fun broadcast(context: Context, uri: Uri?) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri)
+                context.sendBroadcast(mediaScanIntent)
+            } else {
+                context.sendBroadcast(Intent(Intent.ACTION_MEDIA_MOUNTED, uri))
+            }
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
     }
 
 
@@ -89,53 +127,94 @@ object ImageFile {
     }
 
     /**
-     * 分享图片
+     * 保存文件
+     * @param oldFile 输入文件
+     * @param newFile 输出文件
      */
-    fun shareImg(content: Context, imgPath: String, name: String) {
-        val url = insertImageToSystem(content, imgPath, name)
-        val imgUri = Uri.parse(url)
-        var shareIntent = Intent()
-        shareIntent.addFlags(
-            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent
-                .FLAG_GRANT_WRITE_URI_PERMISSION
-        )
-        shareIntent.action = Intent.ACTION_SEND
-        shareIntent.putExtra(Intent.EXTRA_STREAM, imgUri)
+    fun copyFile(oldFile: File?, newFile: File?) {
+        var fileInputStream: FileInputStream? = null
+        var fileOutputStream: FileOutputStream? = null
+        try {
+            fileInputStream = FileInputStream(oldFile)
+            fileOutputStream = FileOutputStream(newFile)
+            val buffer = ByteArray(1024)
+            while (fileInputStream.read(buffer) > 0) {
+                fileOutputStream.write(buffer)
+            }
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        } finally {
+            try {
+                fileInputStream?.close()
+                fileOutputStream?.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+    }
 
-        shareIntent.type = "image/*"
-        //切记需要使用Intent.createChooser，否则会出现别样的应用选择框，您可以试试
-        shareIntent = Intent.createChooser(shareIntent, "分享图片")
-        content.startActivity(shareIntent)
+
+    /**
+     * 把图片保存在当前应用的目录下
+     * @param context 上下文
+     * @param imgUrl 图片地址
+     */
+    @SuppressLint("CheckResult")
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    fun saveImg(context: Context, imgUrl: String): String? {
+        val picturesPath = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!.path
+        try {
+            val name = File(imgUrl).name
+            Log.d("name", name)
+            val file = File(picturesPath, name)
+            glideSaveImg(context, imgUrl, file)
+
+            return file.path
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
+
+    /**
+     * 分享图片
+     * @param content 上下文
+     * @param imgPath 图片地址
+     */
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    fun shareImg(content: Context, imgPath: String) {
+        val imgUri = Uri.parse(saveImg(content, imgPath))
+        Intent().apply {
+            addFlags(
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_STREAM, imgUri)
+            type = "image/*"
+            //切记需要使用Intent.createChooser，否则会出现别样的应用选择框，您可以试试
+            content.startActivity(Intent.createChooser(this, "分享图片"))
+        }
     }
 
     // 设置壁纸
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
     fun makeImg(context: Context, imgUrl: String) {
-        Glide.with(context).asBitmap().load(imgUrl)
-            .into(object : SimpleTarget<Bitmap?>() {
-                override fun onResourceReady(
-                    resource: Bitmap,
-                    transition: Transition<in Bitmap?>?,
-                ) {
-//                        WallpaperManager.getInstance(baseContext).setBitmap(resource)
-//                        runOnUiThread {
-//                            Toast.makeText(baseContext, "设置成功", Toast.LENGTH_SHORT).show()
-//                        }
-                    val intent = Intent(Intent.ACTION_ATTACH_DATA)
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    intent.putExtra("mimeType", "image/*")
-                    val uri: Uri =
-                        Uri.parse(MediaStore.Images.Media.insertImage(context.contentResolver,
-                            resource,
-                            null,
-                            null
-                        )
-                        )
-                    intent.data = uri
-                    context.startActivity(intent)
-                }
-            })
 
-
+        val saveImg = saveImg(context, imgUrl)
+        val uriForFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            FileProvider.getUriForFile(context, "com.view.image", File(saveImg))
+        } else {
+            Uri.parse(saveImg)
+        }
+        Intent().apply {
+            addFlags(
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent
+                    .FLAG_GRANT_WRITE_URI_PERMISSION
+            )
+            action = Intent.ACTION_ATTACH_DATA
+            setDataAndType(uriForFile, "image/*")
+            context.startActivity(this)
+        }
     }
 
     fun showImg(
