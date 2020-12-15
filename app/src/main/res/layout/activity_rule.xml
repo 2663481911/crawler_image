@@ -5,12 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".activity.RuleActivity">
+    tools:context=".rule.RuleActivity">
 
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/toolbar_fragment"
-        android:name="com.view.image.fragment.RuleToolbarFragment"
+        android:name="com.view.image.rule.RuleToolbarFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
@@ -21,7 +21,7 @@
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/rule_fragment"
-            android:name="com.view.image.fragment.RuleFragment"
+            android:name="com.view.image.rule.RuleFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp" />

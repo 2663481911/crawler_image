@@ -2,7 +2,7 @@ package com.view.image.analyzeRule
 
 import android.util.Log
 import com.view.image.analyzeRule.RuleType.*
-import com.view.image.model.HomeData
+import com.view.image.home.HomeData
 import org.jsoup.Jsoup
 import java.util.*
 import java.util.regex.Pattern
@@ -27,7 +27,11 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
     private var engine: ScriptEngine? = null
         get() {
             if (field == null) {
-                field = ScriptEngineManager().getEngineByName("javascript")
+                try {
+                    field = ScriptEngineManager().getEngineByName("javascript")
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
             return field
         }
