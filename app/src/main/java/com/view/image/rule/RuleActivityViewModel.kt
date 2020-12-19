@@ -8,4 +8,9 @@ import com.view.image.analyzeRule.Rule
 class RuleActivityViewModel : ViewModel() {
     val ruleLiveData = MutableLiveData<Rule>()
     val isGetRuleLive = MutableLiveData(false)
+
+    fun isGetRule() {
+        isGetRuleLive.value = true
+        isGetRuleLive.value = false
+    }
 }

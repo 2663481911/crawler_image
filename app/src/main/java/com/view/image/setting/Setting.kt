@@ -8,6 +8,7 @@ import java.io.IOException
 object Setting {
     const val RULE_FILE_NAME = "rule.json"
     const val INIT_FILE_NAME = "init.json"
+    const val TAG = "image"
 
     fun moveSettingFile(context: Context, name: String = "rule.json") {
         val path = context.getExternalFilesDir(null)?.path

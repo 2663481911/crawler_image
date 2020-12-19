@@ -38,6 +38,7 @@ class PageToolbarFragment : Fragment() {
                 it.setHomeAsUpIndicator(R.drawable.back)
             }
         }
+
         galleryViewModel = ViewModelProvider(activity
             ?: this).get(PageViewModel::class.java)
     }

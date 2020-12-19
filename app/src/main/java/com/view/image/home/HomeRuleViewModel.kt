@@ -28,6 +28,9 @@ class HomeRuleViewModel(application: Application) : AndroidViewModel(application
     fun loadRuleList(reLoad: Boolean = false) {
         if (_ruleListLive.value.isNullOrEmpty() || reLoad) {
             _ruleListLive.value = RuleFile.ruleStrToArrayRule(RuleFile.readRule(getApplication()))
+            if (_curRuleNumLive.value!! > _ruleListLive.value!!.size - 1) {
+                _curRuleNumLive.value = _ruleListLive.value!!.size - 1
+            }
             _ruleLive.value = _ruleListLive.value!![_curRuleNumLive.value!!]
         }
     }

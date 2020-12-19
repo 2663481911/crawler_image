@@ -3,9 +3,11 @@ package com.view.image.page
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.view.image.analyzeRule.AnalyzeRule
 import com.view.image.analyzeRule.Rule
@@ -46,6 +48,13 @@ class PageActivity : AppCompatActivity() {
 
         galleryViewModel.setRule(rule)
         val galleryAdapter = PageAdapter()
+        // 添加分割线
+        binding.recyclerView.addItemDecoration(
+            DividerItemDecoration(
+                this,
+                DividerItemDecoration.VERTICAL
+            )
+        )
 
         binding.recyclerView.apply {
             layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
@@ -53,6 +62,7 @@ class PageActivity : AppCompatActivity() {
         }
 
         galleryViewModel.imgUrlListLive.observe(this, {
+            Log.d("tag", "onCreate: $it")
             galleryAdapter.submitList(it)
         })
 

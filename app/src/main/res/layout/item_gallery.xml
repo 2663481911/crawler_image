@@ -2,7 +2,7 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="2dp">
+    android:background="@color/background">
 
     <TextView
         android:id="@+id/gallery_text"
@@ -12,6 +12,7 @@
 
     <ImageView
         android:id="@+id/imageView"
+        android:background="@color/background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"

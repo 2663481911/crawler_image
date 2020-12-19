@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.view.image.databinding.FragmentHomeDataShowBinding
@@ -36,6 +37,14 @@ class HomeDataShowFragment : Fragment() {
             this.layoutManager = layoutManager
         }
 
+        // 添加分割线
+        fragmentBinding.recyclerView.addItemDecoration(
+            DividerItemDecoration(
+                requireContext(),
+                DividerItemDecoration.VERTICAL
+            )
+        )
+
         val homeDataViewModel =
             ViewModelProvider(activity ?: this).get(HomeDataViewModel::class.java)
         val ruleViewModel = ViewModelProvider(activity ?: this).get(HomeRuleViewModel::class.java)
@@ -46,12 +55,8 @@ class HomeDataShowFragment : Fragment() {
                     PageActivity.actionStart(requireContext(), data, it)
                 }
             }
-
         })
 
-        if (homeDataViewModel.photoListLive.value.isNullOrEmpty()) {
-            homeDataShowAdapter.submitList(homeDataViewModel.photoListLive.value)
-        }
 
         //观察数据变化
         homeDataViewModel.photoListLive.observe(this.viewLifecycleOwner, {
@@ -85,13 +90,15 @@ class HomeDataShowFragment : Fragment() {
 
 
         homeDataViewModel.pageNum.observe(this.viewLifecycleOwner, {
-            homeDataViewModel.getHomeDataList()
+            if (homeDataViewModel.dataStatusLive.value != DATA_STATUS_NOR_MORE)
+                homeDataViewModel.getHomeDataList()
         })
 
         // 下拉刷新
         fragmentBinding.gallerySwipe.setOnRefreshListener {
             homeDataViewModel.isRefresh = true
             homeDataViewModel.getHomeDataList()
+
         }
 
         // 底部刷新
@@ -104,7 +111,7 @@ class HomeDataShowFragment : Fragment() {
                 layoutManager.findLastVisibleItemPositions(intArray)
                 if (intArray[0] == homeDataShowAdapter.itemCount - 1) {
                     val pageNum = homeDataViewModel.pageNum.value!! + 1
-                    if (!homeDataViewModel.isBeGetVale) {
+                    if (!homeDataViewModel.isBeGetVale && homeDataViewModel.dataStatusLive.value != DATA_STATUS_NOR_MORE) {
                         homeDataViewModel.isRefresh = false
                         homeDataViewModel.setPageNum(pageNum)
                     }
@@ -112,5 +119,4 @@ class HomeDataShowFragment : Fragment() {
             }
         })
     }
-
 }

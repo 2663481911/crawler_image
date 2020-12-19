@@ -10,6 +10,5 @@ interface AnalyzeRuleDao {
     fun analyzeRuleJson(jsonStr: String, doc: Any?): Any?
     fun analyzeRuleJsonPath(jsonStr: String, doc: Any?): Any?
     fun analyzeByJS(jsStr: String, doc: Any?, engine: ScriptEngine): String
-    fun addJs(jsUrl: String, engine: ScriptEngine)    // 添加js库
     fun analyzeByJsReplace(jsStr: String, imgSrc: String, engine: ScriptEngine): String
 }

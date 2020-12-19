@@ -31,14 +31,17 @@ class RuleFragment : Fragment() {
 
         viewModel = ViewModelProvider(activity ?: this).get(RuleActivityViewModel::class.java)
         // 观察rule的变化，把rule显示在页面上
-        viewModel.ruleLiveData.observe(viewLifecycleOwner, {
-            showRule(it)
-        })
+//        viewModel.ruleLiveData.observe(viewLifecycleOwner, {
+//            showRule(it)
+//        })
+        showRule(rule)
+
         viewModel.ruleLiveData.value = rule
 
         // 点击保存按钮时获取页面上的rule数据
         viewModel.isGetRuleLive.observe(viewLifecycleOwner, {
-            viewModel.ruleLiveData.value = getEditRule()
+            if (it)
+                viewModel.ruleLiveData.value = getEditRule()
         })
     }
 
@@ -51,6 +54,10 @@ class RuleFragment : Fragment() {
             ruleSourceUrl.setText(rule.sourceUrl)
             ruleReqMethod.setText(rule.reqMethod)
             ruleSort.setText(rule.sortUrl)
+            tabName.setText(rule.tabName)
+            tabHref.setText(rule.tabHref)
+            tabHrefReplace.setText(rule.tabReplace)
+            tabFrom.setText(rule.tabFrom)
 
             ruleHomeList.setText(rule.homeList)
             ruleHomeHref.setText(rule.homeHref)
@@ -67,6 +74,8 @@ class RuleFragment : Fragment() {
             ruleAddJs.setText(rule.js)
             ruleJsMethod.setText(rule.jsMethod)
             charset.setText(rule.charset)
+            userAgent.setText(rule.userAgent)
+
         }
     }
 
@@ -80,6 +89,10 @@ class RuleFragment : Fragment() {
             sourceUrl = binding.ruleSourceUrl.text.toString()
             reqMethod = binding.ruleReqMethod.text.toString()
             sortUrl = binding.ruleSort.text.toString()
+            tabName = binding.tabName.text.toString()
+            tabHref = binding.tabHref.text.toString()
+            tabReplace = binding.tabHrefReplace.text.toString()
+            tabFrom = binding.tabFrom.text.toString()
 
             homeList = binding.ruleHomeList.text.toString()
             homeSrc = binding.ruleHomeSrc.text.toString()
@@ -96,6 +109,7 @@ class RuleFragment : Fragment() {
             js = binding.ruleAddJs.text.toString()
             jsMethod = binding.ruleJsMethod.text.toString()
             charset = binding.charset.text.toString()
+            userAgent = binding.userAgent.text.toString()
 
         }
         return rule

@@ -46,9 +46,44 @@
         android:text="@string/rule_sort" />
 
     <EditText
+        android:hint="@string/customize"
         android:id="@+id/rule_sort"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@+id/tab_from"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/tab_from"
+        android:singleLine="true" />
+
+    <EditText
+        android:id="@+id/tab_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/rule_tab_name"
+        android:singleLine="true" />
+
+    <EditText
+        android:id="@+id/tab_href"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/rule_tab_href"
+        android:singleLine="true" />
+
+    <EditText
+        android:id="@+id/tab_href_replace"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/tab_href_replace"
+        android:singleLine="true"
+        tools:ignore="SmallSp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:lines="2" />
 
     <!--    home -->
     <TextView
@@ -57,6 +92,7 @@
         android:text="@string/rule_home_list" />
 
     <EditText
+        android:singleLine="true"
         android:id="@+id/rule_home_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
@@ -67,6 +103,7 @@
         android:text="@string/rule_home_href" />
 
     <EditText
+        android:singleLine="true"
         android:id="@+id/rule_home_href"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
@@ -77,6 +114,7 @@
         android:text="@string/rule_home_src" />
 
     <EditText
+        android:singleLine="true"
         android:id="@+id/rule_home_src"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
@@ -87,6 +125,7 @@
         android:text="@string/rule_home_title" />
 
     <EditText
+        android:singleLine="true"
         android:id="@+id/rule_home_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
@@ -97,6 +136,7 @@
         android:text="@string/replace_home_src" />
 
     <EditText
+        android:singleLine="true"
         android:id="@+id/replace_home_src"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
@@ -113,6 +153,7 @@
         android:text="@string/rule_img_page_list" />
 
     <EditText
+        android:singleLine="true"
         android:id="@+id/rule_img_page_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
@@ -123,6 +164,7 @@
         android:text="@string/rule_img_page_src" />
 
     <EditText
+        android:singleLine="true"
         android:id="@+id/rule_img_page_src"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
@@ -133,6 +175,7 @@
         android:text="@string/rule_img_next_page" />
 
     <EditText
+        android:singleLine="true"
         android:id="@+id/rule_img_next_page"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
@@ -144,6 +187,7 @@
         android:text="@string/replace_page_src" />
 
     <EditText
+        android:singleLine="true"
         android:id="@+id/replace_page_src"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
@@ -184,7 +228,18 @@
         android:text="@string/source_charset" />
 
     <EditText
+        android:singleLine="true"
         android:id="@+id/charset"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/user_agent" />
+
+    <EditText
+        android:id="@+id/user_agent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 </LinearLayout>

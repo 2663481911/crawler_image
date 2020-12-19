@@ -56,11 +56,12 @@ class HomeSpinnerFragment : Fragment() {
         ruleViewModel.ruleLive.observe(this.viewLifecycleOwner, {
             activity?.title = it.sourceName
             homeDataViewModel.setRuleUtil(it)
+        })
+
+        homeDataViewModel.sortMap.observe(this.viewLifecycleOwner, {
             val sortNameList = homeDataViewModel.getSortNameList()
             updateSpinner(sortNameList!!.toList())
         })
-
-
 
         homeSpinnerBinding.spinnerView.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {

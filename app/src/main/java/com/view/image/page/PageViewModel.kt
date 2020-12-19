@@ -1,5 +1,6 @@
 package com.view.image.page
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -7,13 +8,13 @@ import androidx.lifecycle.viewModelScope
 import com.view.image.analyzeRule.Rule
 import com.view.image.analyzeRule.RuleUtil
 import com.view.image.model.NetWork
+import com.view.image.setting.Setting.TAG
 import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Response
 import java.io.IOException
-import java.nio.charset.Charset
 
-class PageViewModel : ViewModel() {
+class PageViewModel : ViewModel(), NetWork.NetWorkCall {
 
     private val _imgUrlListLive = MutableLiveData<ArrayList<String>>()
     val imgUrlListLive: LiveData<ArrayList<String>>
@@ -51,37 +52,36 @@ class PageViewModel : ViewModel() {
             arrayListOf?.add(href)
             hrefListLive.postValue(arrayListOf)
         }
+        ruleUtil?.setRequestUrl(href)
+        NetWork.get(href, ruleLive.value!!, this)
+    }
 
-        NetWork.get(href, ruleLive.value!!.cookie, object : NetWork.NetWorkCall {
-            override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
-            }
+    override fun onFailure(call: Call, e: IOException) {
+        e.printStackTrace()
+    }
 
-            override fun onResponse(call: Call, response: Response) {
-                ruleUtil?.setRequestUrl(href)
-                String(response.body!!.bytes(), charset = Charset.forName("GB2312")).let {
-                    val arrayList = ruleUtil?.getImgList(it) as ArrayList<String>
 
-                    if (arrayList.isNotEmpty()) {
+    override fun onResponse(call: Call, response: Response) {
+        String(response.body!!.bytes(), charset(ruleUtil!!.getCharset())).let {
+            val arrayList = ruleUtil?.getImgList(it) as ArrayList<String>
+            Log.d(TAG, "onResponse: $it")
+            if (arrayList.isNotEmpty()) {
+                if (!_imgUrlListLive.value.isNullOrEmpty()) {
+                    val toMutableList = _imgUrlListLive.value
+                    toMutableList?.addAll(arrayList)
+                    _imgUrlListLive.postValue(toMutableList)
+                } else _imgUrlListLive.postValue(arrayList)
 
-                        if (!_imgUrlListLive.value.isNullOrEmpty()) {
-                            val toMutableList = _imgUrlListLive.value?.toMutableList()
-                            toMutableList?.addAll(arrayList)
-                            _imgUrlListLive.postValue(toMutableList as ArrayList<String>?)
-                        } else _imgUrlListLive.postValue(arrayList)
-
-                        // 当前viewModel销毁停止
-                        viewModelScope.launch {
-                            // 获取下一页
-                            ruleUtil?.getImageNextPageHref(it, hrefLive.value!!)?.let { it1 ->
-                                if (hrefListLive.value?.contains(it1) != true && it1.isNotEmpty())
-                                    getImgList(it1)
-                            }
-                        }
+                // 当前viewModel销毁停止
+                viewModelScope.launch {
+                    // 获取下一页
+                    ruleUtil?.getImageNextPageHref(it, hrefLive.value!!)?.let { it1 ->
+                        if (hrefListLive.value?.contains(it1) != true && it1.isNotEmpty())
+                            getImgList(it1)
                     }
                 }
             }
-        })
+        }
     }
 
 

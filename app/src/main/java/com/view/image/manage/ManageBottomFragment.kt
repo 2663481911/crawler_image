@@ -83,14 +83,11 @@ class ManageBottomFragment : Fragment() {
         val ruleList = ArrayList<Rule>()
         for (pos in selectCheckbox?.keys!!) {
             val rule = manageRuleViewModel.ruleListLiveData.value?.get(pos)
-            if (rule != null) {
-                ruleList.add(rule)
-            }
+            rule?.let { ruleList.add(it) }
         }
         val ruListString = Gson().toJson(ruleList).toString()
         val shareName = "share.rule"
         RuleFile.saveFile(requireContext(), ruListString, shareName)
         RuleFile.shareRule(requireContext(), shareName)
     }
-
 }

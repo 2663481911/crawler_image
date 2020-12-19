@@ -16,7 +16,7 @@ import javax.script.ScriptEngine
 
 
 class AnalyzeRule : AnalyzeRuleDao {
-    lateinit var url: String
+    var url: String? = null
 
     /**
      * 获取js
@@ -38,14 +38,6 @@ class AnalyzeRule : AnalyzeRuleDao {
         return ""
     }
 
-    private fun anyToJXDocument(doc: Any?): JXDocument {
-        return when (doc) {
-            is JXDocument -> doc
-            is Document -> JXDocument.create(doc)
-            is Elements -> JXDocument.create(doc)
-            else -> JXDocument.create(doc.toString())
-        }
-    }
 
     /**
      * 设置请求地址
@@ -54,108 +46,69 @@ class AnalyzeRule : AnalyzeRuleDao {
         this.url = url
     }
 
-    override fun analyzeRuleByXpath(xpathString: String, doc: Any?): Any? {
-        return when (doc) {
-            is MutableList<*> ->
-                return when (doc[0]) {
-                    is JXNode -> {
-                        val jxNodeList: MutableList<JXNode> = ArrayList()
-                        for (jxNode in doc) {
-                            val jxNode1 = jxNode as JXNode
-                            jxNodeList.add(jxNode1.selOne(xpathString))
-                        }
-                        jxNodeList
-                    }
-                    else -> anyToJXDocument(doc).selN(xpathString)
-                }
-            else -> anyToJXDocument(doc).selN(xpathString)
-        }
+    override fun analyzeRuleByXpath(xpathString: String, doc: Any?): MutableList<JXNode>? {
+        val document = Jsoup.parse(doc.toString(), url)
+        val jxDocument = JXDocument.create(document)
+        return jxDocument.selN(xpathString)
     }
 
-    private fun anyToElements(doc: Any?): Elements {
+    override fun analyzeRuleByJSoup(jSoupStr: String, doc: Any?): Any? {
+        if (jSoupStr == "") return doc
 
-        return when (doc) {
-            is Elements -> doc
-            is Document -> Elements(doc)
-            is Element -> Elements(doc)
-            is List<*> -> {
-                when (doc[0]) {
-                    is JXNode -> {
-                        val elements = Elements()
-                        for (jxNode in doc) {
-                            elements.add((jxNode as JXNode).asElement())
-                        }
-                        elements
-                    }
-                    else -> Elements(Jsoup.parse(doc.toString()))
-                }
-            }
-            else -> Elements(Jsoup.parse(doc.toString()))
-        }
-    }
-
-    override fun analyzeRuleByJSoup(jSoupStr: String, doc: Any?): Any {
-        val elements = anyToElements(doc)
-        val arrayList = ArrayList<Any?>()
         jSoupStr.split("@", limit = 2).also {
             return when (it.size) {
                 2 -> {
-                    for (element in elements) {
-                        element.setBaseUri(url)
-                        when {
-                            it[0] != "" -> {
-                                for (element1 in element.select(it[0])) {
-
-                                    when (it[1]) {
-                                        "text" -> {
-                                            val text = element1.text()
-                                            arrayList.add(text)
+                    val arrayList = ArrayList<Any?>()
+                    when {
+                        it[0] != "" -> {
+                            val document = Jsoup.parse(doc.toString(), url)
+                            val elements = document.select(it[0])
+                            for (element in elements) {
+                                if (it[1] != "text") arrayList.add(element.attr(it[1]))
+                                else arrayList.add(element.text())
+                            }
+                        }
+                        else -> {
+                            val element = when (doc) {
+                                is Elements -> {
+                                    for (element in doc) {
+                                        when {
+                                            it[1] != "text" -> arrayList.add(element.attr(it[1]))
+                                            else -> arrayList.add(element.text())
                                         }
-
-                                        "url" -> {
-                                            val attr = element1.absUrl(it[1])
-                                            arrayList.add(attr)
-                                        }
-                                        "href" -> {
-                                            val attr = element1.absUrl(it[1])
-                                            arrayList.add(attr)
-                                        }
-                                        else -> {
-                                            val attr = element1.attr(it[1])
-                                            arrayList.add(attr)
-                                        }
-
                                     }
+                                    return arrayList
                                 }
-                            }
-                            else -> {
-                                if (it[1] == "text") {
-                                    val text = element.text()
-                                    arrayList.add(text)
-                                } else {
-                                    val attr = element.attr(it[1])
-                                    arrayList.add(attr)
+
+                                is MutableList<*> -> {
+                                    for (node in doc) {
+                                        val element = (node as JXNode).asElement()
+                                        when {
+                                            it[1] != "text" -> arrayList.add(element.attr(it[1]))
+                                            else -> arrayList.add(element.text())
+                                        }
+                                    }
+                                    return arrayList
                                 }
+                                is Element -> doc
+                                is Document -> doc
+                                is JXNode -> doc.asElement()
+                                else -> Jsoup.parse(doc.toString(), url)
                             }
+                            if (it[1] != "text") arrayList.add(element.attr(it[1]))
+                            else arrayList.add(element.text())
                         }
                     }
                     arrayList
                 }
-                else -> {
-                    val elements1 = Elements()
-                    for (element in elements) {
-                        for (element1 in element.select(jSoupStr)) {
-                            elements1.add(element1)
-                        }
-                    }
-                    elements1
-                }
+                else -> Jsoup.parse(doc.toString(), url).select(jSoupStr)
             }
         }
     }
 
-    override fun analyzeRuleByRe(reStr: String, doc: Any?): Any {
-        return ""
+
+    override fun analyzeRuleByRe(reStr: String, doc: Any?): Any? {
+        return null
     }
 
     override fun analyzeRuleJson(jsonStr: String, doc: Any?): Any? {
@@ -166,11 +119,6 @@ class AnalyzeRule : AnalyzeRuleDao {
         return JsonPath.read<String>(doc.toString(), jsonStr)
     }
 
-    override fun addJs(jsUrl: String, engine: ScriptEngine) {
-        val html = getHtml(jsUrl)
-        engine.put("js", html)
-        engine.eval(html)
-    }
 
     override fun analyzeByJsReplace(jsStr: String, imgSrc: String, engine: ScriptEngine): String {
         engine.put("imgSrc", imgSrc)

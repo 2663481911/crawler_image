@@ -8,7 +8,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
-import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
@@ -109,24 +108,6 @@ object ImageFile {
 
 
     /**
-     * 处理微信分享资源获取失败问题
-     */
-    private fun insertImageToSystem(context: Context, imagePath: String, name: String): String? {
-        var url: String? = ""
-        try {
-            url = MediaStore.Images.Media.insertImage(
-                context.contentResolver,
-                imagePath,
-                name,
-                "有图了"
-            )
-        } catch (e: FileNotFoundException) {
-            e.printStackTrace()
-        }
-        return url
-    }
-
-    /**
      * 保存文件
      * @param oldFile 输入文件
      * @param newFile 输出文件
@@ -183,16 +164,22 @@ object ImageFile {
      * @param imgPath 图片地址
      */
     @RequiresApi(Build.VERSION_CODES.KITKAT)
-    fun shareImg(content: Context, imgPath: String) {
-        val imgUri = Uri.parse(saveImg(content, imgPath))
+    fun shareImg(context: Context, imgPath: String) {
+        val saveImg = saveImg(context, imgPath)
+        val uriForFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            FileProvider.getUriForFile(context, "com.view.image", File(saveImg))
+        } else {
+            Uri.parse(saveImg)
+        }
         Intent().apply {
             addFlags(
-                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            )
             action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_STREAM, imgUri)
+            putExtra(Intent.EXTRA_STREAM, uriForFile)
             type = "image/*"
             //切记需要使用Intent.createChooser，否则会出现别样的应用选择框，您可以试试
-            content.startActivity(Intent.createChooser(this, "分享图片"))
+            context.startActivity(Intent.createChooser(this, "分享图片"))
         }
     }
 
@@ -216,6 +203,7 @@ object ImageFile {
             context.startActivity(this)
         }
     }
+
 
     fun showImg(
         view: View,

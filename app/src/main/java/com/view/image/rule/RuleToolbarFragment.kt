@@ -73,7 +73,7 @@ class RuleToolbarFragment : Fragment() {
             }
 
             R.id.save_rule -> {
-                viewModel.isGetRuleLive.value = true
+                viewModel.isGetRule()
                 val rule = viewModel.ruleLiveData.value
                 when (requestCode) {
                     ADD_RULE_CODE -> {
@@ -107,7 +107,7 @@ class RuleToolbarFragment : Fragment() {
             }
 
             R.id.debug_rule -> {
-                viewModel.isGetRuleLive.value = true
+                viewModel.isGetRule()
                 val rule = viewModel.ruleLiveData.value
                 rule?.let {
                     DebugActivity.actionStart(requireContext(), it)

@@ -12,105 +12,137 @@ import okhttp3.Response
 import java.io.IOException
 import java.nio.charset.Charset
 import java.util.*
-import kotlin.concurrent.thread
+import kotlin.collections.HashMap
 
 class DebugReqViewModel : NetWork.NetWorkCall, ViewModel() {
+    companion object {
+        const val TAG = "DebugReqViewModel"
+        const val HOME_CODE = 1
+        const val PAGE_CODE = 2
+    }
+
     private val startPage = MutableLiveData(1)
     private lateinit var ruleUtil: RuleUtil
     private val homeStatusCode = MutableLiveData<Int>()
-    val oneSortUrl = MutableLiveData<String>()
     val homeListData = MutableLiveData<String>()
-    val homeHref = MutableLiveData<List<*>>()
-    val homeTitle = MutableLiveData<List<*>>()
-    val homeSrc = MutableLiveData<List<*>>()
+    val homeHref = MutableLiveData<Any>()
+    val homeTitle = MutableLiveData<Any>()
+    val homeSrc = MutableLiveData<Any>()
     val imageListData = MutableLiveData<String>()
     var homeReqSrc = MutableLiveData<String>()
     var nextPage = MutableLiveData<String>()
-
-
-    private fun getOneSort(): String {
-        if (ruleUtil.sortHrefList.isNotEmpty())
-            return ruleUtil.sortHrefList[0]
-        return ""
-    }
+    val tabMap = MutableLiveData<Map<String, String>>()
 
     fun setRuleUtil(rule: Rule) {
         ruleUtil = RuleUtil(rule, AnalyzeRule())
-        oneSortUrl.value = getOneSort()
+        getTabMap()
     }
 
-    fun getHomeHtml() {
-        val url = oneSortUrl.value!!
-        ruleUtil.setRequestUrl(url)
-        if (ruleUtil.getRuleReqMethod().toLowerCase(Locale.ROOT) == "get") {
-            homeStatusCode.postValue(1)
-            homeReqSrc.postValue(url.replace("@page", startPage.value.toString()))
-            NetWork.get(url.replace("@page", startPage.value.toString()),
-                ruleUtil.rule.cookie,
-                this)
-        } else {
-            homeStatusCode.postValue(1)
-            thread {
-                NetWork.post(url,
-                    ruleUtil.getNewData(url, startPage.value!!),
-                    ruleUtil.rule.cookie,
-                    this)
-            }
+    /**
+     * 获取tab
+     */
+    private fun getTabMap() {
+        if (ruleUtil.rule.tabHref != "") {
 
+            NetWork.get(ruleUtil.getTabFrom(), ruleUtil.rule, object : NetWork.NetWorkCall {
+                override fun onFailure(call: Call, e: IOException) {
+                    HashMap<String, String>().run {
+                        put("e", e.stackTraceToString())
+                        tabMap.postValue(this)
+                    }
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    response.body?.let {
+                        val tab =
+                            ruleUtil.getTab(String(it.bytes(), charset(ruleUtil.getCharset())))
+                        tabMap.postValue(tab)
+                    }
+                }
+            })
+        } else {
+            tabMap.postValue(ruleUtil.sortMap)
         }
     }
 
-    override fun onFailure(call: Call, e: IOException) {
-        when (homeStatusCode.value) {
-            1 -> homeListData.postValue(e.toString())
+    fun getUrl() {
+        getHomeHtml(tabMap.value!!.values.random())
+    }
 
-            2 -> {
-                imageListData.postValue(e.toString())
-            }
+    private fun getHomeHtml(url: String) {
+        Log.d(TAG, url)
+        ruleUtil.setRequestUrl(url)
+        if (ruleUtil.getRuleReqMethod().toLowerCase(Locale.ROOT) == "get") {
+            homeStatusCode.postValue(HOME_CODE)
+            homeReqSrc.postValue(url.replace("@page", startPage.value.toString()))
+            NetWork.get(
+                url.replace("@page", startPage.value.toString()),
+                ruleUtil.rule,
+                this
+            )
+        } else {
+            homeStatusCode.postValue(HOME_CODE)
+            NetWork.post(
+                url,
+                ruleUtil.getNewData(url, startPage.value!!),
+                ruleUtil.rule, this@DebugReqViewModel
+            )
+
         }
     }
 
     fun getImagePage() {
-        if (homeHref.value?.isNotEmpty() == true) {
-            val href = homeHref.value?.get(0)
-            Log.d("href", href.toString())
-            homeStatusCode.postValue(2)
-            NetWork.get(href.toString(), ruleUtil.rule.cookie, this)
+        homeHref.value?.let {
+            if (it is List<*> && it.size > 0) {
+                val href = it[0]
+                homeStatusCode.postValue(PAGE_CODE)
+                NetWork.get(href.toString(), ruleUtil.rule, this)
+            }
+        }
+
+    }
+
+    override fun onFailure(call: Call, e: IOException) {
+        when (homeStatusCode.value) {
+            HOME_CODE -> homeListData.postValue(e.toString())
+            PAGE_CODE -> imageListData.postValue(e.toString())
         }
     }
 
     override fun onResponse(call: Call, response: Response) {
+
         when (homeStatusCode.value) {
-            1 -> {
-                val html = String(response.body!!.bytes(),
-                    charset = Charset.forName(ruleUtil.getCharset()))
+            HOME_CODE -> {
+                val html = String(
+                    response.body!!.bytes(),
+                    Charset.forName(ruleUtil.getCharset())
+                )
                 val homeDataList = ruleUtil.getHomeList(html)
 
                 if (homeDataList.toString().isNotEmpty()) {
                     homeListData.postValue(homeDataList.toString())
-                    homeHref.postValue(ruleUtil.getHomeHref(homeDataList) as List<*>)
-                    homeSrc.postValue(ruleUtil.getHomeSrc(homeDataList) as List<*>)
-                    homeTitle.postValue(ruleUtil.getHomeTitle(homeDataList) as List<*>)
+                    homeHref.postValue(ruleUtil.getHomeHref(homeDataList))
+                    homeSrc.postValue(ruleUtil.getHomeSrc(homeDataList))
+                    homeTitle.postValue(ruleUtil.getHomeTitle(homeDataList))
                 } else {
                     homeListData.postValue("null, html:$html")
                 }
             }
 
-            2 -> {
-                val header = response.headers
-                header.let { Log.d("Content-Charset", it.toString()) }
-                String(response.body!!.bytes(),
-                    charset = Charset.forName(ruleUtil.getCharset())).let {
-                    val imgList = ruleUtil.getImgList(it)
-                    imageListData.postValue(imgList.toString())
-                    val imageNextPageHref = ruleUtil.getImageNextPageHref(it,
-                        homeHref.value?.get(0).toString())
-                    nextPage.postValue(imageNextPageHref)
+            PAGE_CODE -> {
+                val html = String(response.body!!.bytes(), Charset.forName(ruleUtil.getCharset()))
+                imageListData.postValue(ruleUtil.getImgList(html).toString())
+                homeHref.value?.let {
+                    if (it is List<*>) {
+                        val imageNextPageHref =
+                            ruleUtil.getImageNextPageHref(html, (it[0].toString()))
+                        nextPage.postValue(imageNextPageHref)
+                    }
                 }
 
             }
         }
-    }
 
+    }
 
 }

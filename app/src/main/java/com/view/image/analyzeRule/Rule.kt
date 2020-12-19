@@ -6,6 +6,10 @@ import java.io.Serializable
  * @param sourceUrl 源地址
  * @param sourceName 网站名
  * @param sortUrl 分类
+ * @param tabName 标签名字
+ * @param tabHref 标签地址
+ * @param tabReplace 标签地址替换
+ * @param tabFrom 标签来自
  * @param homeList 首页列表
  * @param homeHref 首页地址规则
  * @param homeTitle 首页标题规则
@@ -20,11 +24,16 @@ import java.io.Serializable
  * @param js 加载的js库
  * @param jsMethod js方法
  * @param charset 编码
+ * @param userAgent
  */
 class Rule(
     var sourceUrl: String = "",
     var sourceName: String = "",
     var sortUrl: String = "",
+    var tabName: String = "",
+    var tabHref: String = "",
+    var tabReplace: String = "",
+    var tabFrom: String = "",
     var homeList: String = "",
     var homeHref: String = "",
     var homeTitle: String = "",
@@ -39,5 +48,5 @@ class Rule(
     var js: String = "",
     var jsMethod: String = "",
     var charset: String = "utf-8",
-
-    ) : Serializable
+    var userAgent: String? = null
+) : Serializable

@@ -32,8 +32,9 @@ class DebugActivity : AppCompatActivity() {
         val viewModel = ViewModelProvider(this).get(DebugReqViewModel::class.java)
         viewModel.setRuleUtil(rule)
 
-        viewModel.oneSortUrl.observe(this, {
-            viewModel.getHomeHtml()
+        viewModel.tabMap.observe(this, {
+            binding.tab.text = it.toString()
+            viewModel.getUrl()
         })
 
         viewModel.homeListData.observe(this, {
@@ -45,18 +46,39 @@ class DebugActivity : AppCompatActivity() {
         })
 
         viewModel.homeHref.observe(this, {
-            binding.homeHref.text = "size:${it.size}    $it"
-//            thread {
-            viewModel.getImagePage()
+            when (it) {
+                is List<*> -> {
+                    binding.homeHref.text = "size:${it.size}   $it"
+                    viewModel.getImagePage()
+                }
+                else -> {
+                    binding.homeHref.text = "size:   $it"
+                }
+            }
+
 //            }
         })
 
         viewModel.homeTitle.observe(this, {
-            binding.homeTitle.text = "size:${it.size}    $it"
+            when (it) {
+                is List<*> -> {
+                    binding.homeTitle.text = "size:${it.size}   $it"
+                }
+                else -> {
+                    binding.homeTitle.text = "size:   $it"
+                }
+            }
         })
 
         viewModel.homeSrc.observe(this, {
-            binding.homeSrc.text = "size:${it.size}    $it"
+            when (it) {
+                is List<*> -> {
+                    binding.homeSrc.text = "size:${it.size}   $it"
+                }
+                else -> {
+                    binding.homeSrc.text = "size:   $it"
+                }
+            }
         })
 
         viewModel.imageListData.observe(this, {

@@ -21,7 +21,8 @@
         android:layout_height="match_parent"
         android:layout_below="@id/toolbar_fragment"
         android:layout_alignEnd="@id/toolbar_fragment"
-        android:layout_alignRight="@id/toolbar_fragment" />
+        android:layout_alignRight="@id/toolbar_fragment"
+        android:layout_marginBottom="40dp" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/manage_bottom_fragment"

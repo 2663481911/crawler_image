@@ -14,7 +14,6 @@ import okhttp3.Response
 import java.io.IOException
 import java.nio.charset.Charset
 import java.util.*
-import kotlin.concurrent.thread
 
 const val DATA_STATUS_NETWORK_ERROR = 404    // 网络错误
 const val DATA_STATUS_LOAD_NORMAL = 200   // 正常加载
@@ -23,6 +22,7 @@ const val DATA_STATUS_NOR_MORE = 204   // 没有数据
 class HomeDataViewModel(application: Application) : AndroidViewModel(application),
     NetWork.NetWorkCall {
 
+    val sortMap = MutableLiveData<Map<String, String>>()
     val pageNum: LiveData<Int>
         get() = _pageNum
     val dataUrl: LiveData<String>
@@ -64,9 +64,7 @@ class HomeDataViewModel(application: Application) : AndroidViewModel(application
                     _dataUrl.value = hrefList[1]
                 }
             }
-
         }
-
     }
 
     fun getSortNameList(): ArrayList<String>? {
@@ -74,15 +72,39 @@ class HomeDataViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun setRuleUtil(rule: Rule) {
-        this.ruleUtil = RuleUtil(rule, AnalyzeRule())
+        ruleUtil = RuleUtil(rule, AnalyzeRule())
+        if (rule.tabName != "") {
+            NetWork.get(ruleUtil!!.getTabFrom(), rule, object : NetWork.NetWorkCall {
+                override fun onFailure(call: Call, e: IOException) {
+
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    ruleUtil!!.getTab(
+                        String(
+                            response.body!!.bytes(),
+                            charset = Charset.forName(ruleUtil!!.getCharset())
+                        )
+                    )
+                    sortMap.postValue(ruleUtil!!.sortMap)
+                }
+
+            })
+
+        } else {
+            sortMap.value = ruleUtil!!.getTab()
+        }
     }
 
     // 获取html后的回调
     private fun responseCall(html: String) {
         // 解析数据
         try {
-            val homeDataList = ruleUtil?.getHomeDataList(html) ?: run {
+            val homeDataList = ruleUtil!!.getHomeDataList(html)
+            if (homeDataList.isEmpty()) {
+
                 _dataStatusLive.postValue(DATA_STATUS_NOR_MORE)
+                _pageNum.postValue(pageNum.value?.minus(1))
                 return
             }
             val values = when {
@@ -105,6 +127,7 @@ class HomeDataViewModel(application: Application) : AndroidViewModel(application
 
     // 获取数据
     fun getHomeDataList() {
+        _dataStatusLive.value = DATA_STATUS_LOAD_NORMAL
         if (_dataUrl.value == null) return
         // 用于防止加载多次
         if (isBeGetVale) return
@@ -115,15 +138,15 @@ class HomeDataViewModel(application: Application) : AndroidViewModel(application
                 // 获取请求地址
                 dataUrl.value?.replace("@page", _pageNum.value.toString())?.let {
                     _curReqUrl.value = it
-                    NetWork.get(it, ruleUtil!!.rule.cookie, this)
+                    NetWork.get(it, ruleUtil!!.rule, this)
                 }
             }
             else -> {
                 dataUrl.value?.replace("@page", _pageNum.value.toString())?.let {
-                    thread {
-                        val data = ruleUtil?.getNewData(_dataUrl.value!!, _pageNum.value!!)
-                        NetWork.post(it, data!!, ruleUtil!!.rule.cookie, this)
-                    }
+
+                    val data = ruleUtil?.getNewData(_dataUrl.value!!, _pageNum.value!!)
+                    NetWork.post(it, data!!, ruleUtil!!.rule, this@HomeDataViewModel)
+
                 }
 
 

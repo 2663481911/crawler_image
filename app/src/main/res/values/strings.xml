@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_path">com.view.image</string>
     <string name="app_name">image</string>
     <string name="normal_load">正在加载…</string>
     <string name="network_error">发生错误…</string>
@@ -18,6 +17,10 @@
     <string name="rule_name">源名称</string>
     <string name="rule_url">源地址</string>
     <string name="rule_sort">分类</string>
+    <string name="rule_tab_href">分类规则：标签地址</string>
+    <string name="rule_tab_name">分类规则：标签名字</string>
+    <string name="tab_href_replace">替换(改变页码)(js页码用@page表示, 地址:href)</string>
+    <string name="customize">自定义</string>
     <string name="rule_home_list">首页图片列表(homeList)</string>
     <string name="rule_home_href">链接规则(homeHref)</string>
     <string name="rule_home_src">图片url规则(homeSrc)</string>
@@ -29,7 +32,7 @@
     <string name="rule_add_js">添加js库</string>
     <string name="rule_js_method">js请求方法(用于post请求)</string>
     <string name="replace_home_src">首页图片替换规则js(imgSrc)</string>
-    <string name="replace_page_src">图片列表页图片替换规则</string>
+    <string name="replace_page_src">图片列表页图片替换规则js(imgSrc)</string>
     <string name="paste_rule">黏贴规则</string>
     <string name="save_rule">保存规则</string>
     <string name="debug_rule">debug</string>
@@ -55,4 +58,7 @@
     <string name="all_select">全选</string>
     <string name="share_select_rule">分享选中规则</string>
     <string name="remove_select_rule">删除选中规则</string>
+    <string name="user_agent">user_agent</string>
+    <string name="tab">标签</string>
+    <string name="tab_from">标签来自(默认为源地址)</string>
 </resources>

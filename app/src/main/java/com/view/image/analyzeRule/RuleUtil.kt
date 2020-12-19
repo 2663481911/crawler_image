@@ -3,7 +3,12 @@ package com.view.image.analyzeRule
 import android.util.Log
 import com.view.image.analyzeRule.RuleType.*
 import com.view.image.home.HomeData
+import com.view.image.model.NetWork
+import okhttp3.Call
+import okhttp3.Response
 import org.jsoup.Jsoup
+import java.io.IOException
+import java.nio.charset.Charset
 import java.util.*
 import java.util.regex.Pattern
 import javax.script.ScriptEngine
@@ -20,11 +25,8 @@ enum class RuleType {
     RULE_XPATH
 }
 
-
-@Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS",
-    "RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
-    private var engine: ScriptEngine? = null
+class ScriptEngineDao {
+    var engine: ScriptEngine? = null
         get() {
             if (field == null) {
                 try {
@@ -32,6 +34,30 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
+            }
+            return field
+        }
+
+    fun runJs(jsStr: String) {
+        engine?.eval(jsStr)
+    }
+
+    fun addJs(jsStr: String) {
+        engine?.put("js", "1")
+        engine?.eval(jsStr)
+    }
+
+}
+
+@Suppress(
+    "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS",
+    "RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS"
+)
+class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
+    private var engine: ScriptEngine? = null
+        get() {
+            if (field == null) {
+                field = ScriptEngineManager().getEngineByName("ECMAScript")
             }
             return field
         }
@@ -46,20 +72,17 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
 
     val sortNameList = ArrayList<String>()
     val sortMap = HashMap<String, String>()
-    val sortHrefList = ArrayList<String>()
 
-    /**
-     * 获取类型Map
-     */
     init {
+        addJs()
         if (rule.reqMethod.toLowerCase(Locale.ROOT) == "get") {
             val sortList = rule.sortUrl.trim().split("\n")
             for (sort in sortList) {
                 sort.trim().split("::").also {
                     if (it.size == 2) {
+                        val href = replaceTagHref(it[1].trim())
                         sortNameList.add(it[0].trim())
-                        sortHrefList.add(it[1].trim())
-                        sortMap[it[0].trim()] = it[1].trim()
+                        sortMap[it[0].trim()] = href
                     }
                 }
 
@@ -71,14 +94,50 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
                         sortList[1].trim().split(",", limit = 2).also {
                             Log.d("data", it.size.toString() + it.toString())
                             if (it.size == 2) {
+                                val href = replaceTagHref(it[0].trim())
                                 sortNameList.add(sortList[0].trim())
-                                sortHrefList.add(it[0].trim())
-                                sortMap[sortList[0]] = it[0].trim()
+                                sortMap[sortList[0]] = href
                             }
                         }
                 }
             }
         }
+    }
+
+    fun getTabFrom(): String {
+        return when (rule.tabFrom) {
+            "" -> rule.sourceUrl
+            else -> rule.tabFrom
+        }
+    }
+
+    fun getTab(html: String? = null): Map<String, String> {
+        analyzeRuleDao.setRequestUrl(rule.sourceUrl)
+        if (rule.tabName != "") {
+            val tabHref = analyzeResult(getDataList(rule.tabHref, html))
+            val tabName = analyzeResult(getDataList(rule.tabName, html))
+            if (tabHref.size == tabName.size) {
+                for (i in tabHref.indices) {
+                    val href = replaceTagHref((tabHref[i] as String).trim())
+                    sortNameList.add(tabName[i] as String)
+                    sortMap[tabName[i] as String] = href
+                }
+            }
+        }
+        return sortMap
+    }
+
+    private fun replaceTagHref(href: String): String {
+        if (rule.tabReplace == "") {
+            return href
+        } else {
+            engine?.let {
+                it.put("href", href)
+                it.eval(rule.tabReplace)
+                return it.get("href").toString()
+            }
+        }
+        return href
     }
 
 
@@ -102,6 +161,25 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
         return rule.reqMethod
     }
 
+    private fun addJs() {
+        if (rule.js != "") {
+            NetWork.get(rule.js, rule, object : NetWork.NetWorkCall {
+                override fun onFailure(call: Call, e: IOException) {
+                    engine?.put("js", "-1")
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    val jsStr = String(response.body!!.bytes(), Charset.forName(getCharset()))
+                    engine?.let {
+                        it.eval(jsStr)
+                        it.put("js", "1")
+                    }
+                }
+
+            })
+        }
+    }
+
 
     /**
      *  获取下一页请求的data
@@ -111,14 +189,20 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
     fun getNewData(url: String, page: Int): String {
         val data = getDataToUrl(url)
         val jsStr = rule.jsMethod
-        if (rule.js.isNotEmpty() && engine!!["js"] == null) {
-            Log.d("js", "js")
-            analyzeRuleDao.addJs(rule.js, engine!!)
+        if (rule.js != "") {
+            while (engine!!["js"] == null) {
+                //等待js加载完成
+            }
+            if (engine!!.get("js") == "-1") {
+                return ""
+            }
         }
-        engine!!.put("data", data)
-        engine!!.put("page", page)
-        engine!!.eval(jsStr)
-        return engine!!.get("data").toString()
+        return engine?.run {
+            put("data", data)
+            put("page", page)
+            eval(jsStr)
+            engine!!.get("data").toString()
+        }.toString()
     }
 
     /**
@@ -138,11 +222,13 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
         return ""
     }
 
+
     /**
      * 获取字符串类型
      * @param methodString 字符串规则
      */
     private fun stringType(methodString: String): RuleType {
+        if (methodString == "") return DEFAULT
         if (methodString.substring(0, 2) == "//") return RULE_XPATH
         val strList = methodString.split(":", limit = 2)
         if (methodString.startsWith("$"))
@@ -161,11 +247,11 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
     }
 
 
-
     /**
      * 分离规则
      */
     private fun getRuleString(ruleString: String): String {
+        if (ruleString == "") return ""
         if (ruleString.substring(0, 2) == "//") return ruleString
         val strSplit = ruleString.split(":", limit = 2)
         return when (stringType(ruleString)) {
@@ -176,6 +262,7 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
         }
     }
 
+
     /**
      * 根据给的规则获取数据
      * @param ruleString 字符串规则
@@ -185,9 +272,9 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
         val ruleStr = getRuleString(ruleString)
         return when (stringType(ruleString)) {
             JS -> {
-                if (rule.js.isNotEmpty() && engine!!["js"] == null) {
-                    analyzeRuleDao.addJs(rule.js, engine!!)
-                }
+//                if (rule.js.isNotEmpty() && engine!!["js"] == null) {
+//                    analyzeRuleDao.addJs(rule.js, engine!!)
+//                }
                 engine?.let { analyzeRuleDao.analyzeByJS(ruleStr, result, it) }
             }
             RE -> analyzeRuleDao.analyzeRuleByRe(ruleStr, result)
@@ -198,12 +285,14 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
         }
     }
 
+
     private fun analyzeResult(result: Any?): List<*> {
         return when (result) {
             is String -> result.split(",")
             else -> result as List<*>
         }
     }
+
 
     fun getHomeList(html: String): Any? {
         return when (rule.homeList) {
@@ -245,8 +334,10 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
                 homeSrcDataList[i].toString().let {
                     val imgSrc =
                         when {
-                            rule.homeSrcReplaceByJS.isNotEmpty() -> imgSrcReplaceByJS(rule.imageUrlReplaceByJS,
-                                it)
+                            rule.homeSrcReplaceByJS.isNotEmpty() -> imgSrcReplaceByJS(
+                                rule.imageUrlReplaceByJS,
+                                it
+                            )
                             else -> it
                         }
                     val homeDAta =
@@ -307,7 +398,9 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
     }
 
 
-
+    /**
+     * 获取第一次请求的地址
+     */
     fun getIndexHref(href: String): List<String> {
         val regex = "<(.*),(.*)>"
         val pattern = Pattern.compile(regex)
