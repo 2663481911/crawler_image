@@ -1,43 +1,17 @@
 package com.view.image.analyzeRule
 
 import com.jayway.jsonpath.JsonPath
-import okhttp3.Call
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import org.seimicrawler.xpath.JXDocument
 import org.seimicrawler.xpath.JXNode
-import java.io.IOException
 import javax.script.ScriptEngine
 
 
 class AnalyzeRule : AnalyzeRuleDao {
     var url: String? = null
-
-    /**
-     * 获取js
-     */
-    private fun getHtml(url: String, userAgent: String = ""): String? {
-        val okHttpClient = OkHttpClient()
-        val request: Request = Request.Builder()
-            .url(url)
-            .header("user-agent", userAgent)
-            .build()
-        val call: Call = okHttpClient.newCall(request)
-
-        try {
-            val response: Response = call.execute()
-            return response.body?.string()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return ""
-    }
-
 
     /**
      * 设置请求地址
@@ -106,7 +80,6 @@ class AnalyzeRule : AnalyzeRuleDao {
         }
     }
 
-
     override fun analyzeRuleByRe(reStr: String, doc: Any?): Any? {
         return null
     }
@@ -118,7 +91,6 @@ class AnalyzeRule : AnalyzeRuleDao {
     override fun analyzeRuleJsonPath(jsonStr: String, doc: Any?): Any? {
         return JsonPath.read<String>(doc.toString(), jsonStr)
     }
-
 
     override fun analyzeByJsReplace(jsStr: String, imgSrc: String, engine: ScriptEngine): String {
         engine.put("imgSrc", imgSrc)

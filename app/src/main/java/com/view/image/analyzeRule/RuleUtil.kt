@@ -25,29 +25,6 @@ enum class RuleType {
     RULE_XPATH
 }
 
-class ScriptEngineDao {
-    var engine: ScriptEngine? = null
-        get() {
-            if (field == null) {
-                try {
-                    field = ScriptEngineManager().getEngineByName("javascript")
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-            return field
-        }
-
-    fun runJs(jsStr: String) {
-        engine?.eval(jsStr)
-    }
-
-    fun addJs(jsStr: String) {
-        engine?.put("js", "1")
-        engine?.eval(jsStr)
-    }
-
-}
 
 @Suppress(
     "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS",
@@ -74,6 +51,7 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
     val sortMap = HashMap<String, String>()
 
     init {
+        setRequestUrl(rule.sourceUrl)
         addJs()
         if (rule.reqMethod.toLowerCase(Locale.ROOT) == "get") {
             val sortList = rule.sortUrl.trim().split("\n")
@@ -418,31 +396,4 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
         return list
     }
 
-}
-
-fun main() {
-
-
-//    val rule = Rule()
-//    rule.homeList = ".work-thumbnail"
-//    rule.homeHref = "a@href"
-//    rule.homeSrc = "img@abs:src"
-//    rule.homeTitle = "div.title@text"
-//
-//    rule.imagePageList = "#imgs_json@text"
-//    rule.imagePageSrc = "@json:$.[*]..img"
-//    rule.imageUrlReplaceByJS = "imgSrc = 'http://imgoss.cnu.cc/' + imgSrc;"
-//    val ruleUtil = RuleUtil(Rule(), AnalyzeRule())
-//
-//    val document = Jsoup.connect("http://www.cnu.cc/inspirationPage/recent-0").get().html()
-//    val dataList = ruleUtil.getHomeDataList(document)
-//    for (data in dataList) {
-//        println(data.imgSrc + data.imgTitle + data.href)
-//    }
-//    val imgHtml = Jsoup.connect("http://www.cnu.cc/works/430080").get().html()
-//    println(ruleUtil.getImgList(imgHtml))
-////    val jxDocument = JXDocument.create(elements)
-////    println(elements)
-////    println(jxDocument.selN("//a/@href").toTypedArray())
-////    println(str)
 }
