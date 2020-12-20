@@ -30,11 +30,11 @@ class RuleFragment : Fragment() {
 
 
         viewModel = ViewModelProvider(activity ?: this).get(RuleActivityViewModel::class.java)
-        // 观察rule的变化，把rule显示在页面上
-//        viewModel.ruleLiveData.observe(viewLifecycleOwner, {
-//            showRule(it)
-//        })
-        showRule(rule)
+
+        // 观察rule的变化，把rule显示在页面上，黏贴规则用到
+        viewModel.ruleLiveData.observe(viewLifecycleOwner, {
+            showRule(it)
+        })
 
         viewModel.ruleLiveData.value = rule
 

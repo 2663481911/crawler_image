@@ -25,9 +25,8 @@ class HomeDataShowFragment : Fragment() {
         return fragmentBinding.root
     }
 
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         val homeDataShowAdapter = HomeDataShowAdapter()
 //        val layoutManager = GridLayoutManager(requireContext(), 2)
         val layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
@@ -118,5 +117,11 @@ class HomeDataShowFragment : Fragment() {
                 }
             }
         })
+
+    }
+
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
     }
 }
