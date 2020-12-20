@@ -49,4 +49,36 @@ class Rule(
     var jsMethod: String = "",
     var charset: String = "utf-8",
     var userAgent: String? = null
-) : Serializable
+) : Serializable {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Rule
+
+        if (sourceUrl != other.sourceUrl) return false
+        if (sourceName != other.sourceName) return false
+        if (sortUrl != other.sortUrl) return false
+        if (tabName != other.tabName) return false
+        if (tabHref != other.tabHref) return false
+        if (tabReplace != other.tabReplace) return false
+        if (tabFrom != other.tabFrom) return false
+        if (homeList != other.homeList) return false
+        if (homeHref != other.homeHref) return false
+        if (homeTitle != other.homeTitle) return false
+        if (homeSrc != other.homeSrc) return false
+        if (homeSrcReplaceByJS != other.homeSrcReplaceByJS) return false
+        if (imagePageList != other.imagePageList) return false
+        if (imagePageSrc != other.imagePageSrc) return false
+        if (imageNextPage != other.imageNextPage) return false
+        if (imageUrlReplaceByJS != other.imageUrlReplaceByJS) return false
+        if (reqMethod != other.reqMethod) return false
+        if (cookie != other.cookie) return false
+        if (js != other.js) return false
+        if (jsMethod != other.jsMethod) return false
+        if (charset != other.charset) return false
+        if (userAgent != other.userAgent) return false
+
+        return true
+    }
+}

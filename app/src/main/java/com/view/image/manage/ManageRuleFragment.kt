@@ -40,6 +40,7 @@ class ManageRuleFragment : Fragment() {
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
 
+        // 编辑规则
         manageRuleViewModel.editPosition.observe(viewLifecycleOwner, {
             RuleActivity.actionStart(
                 requireActivity(),
@@ -50,39 +51,47 @@ class ManageRuleFragment : Fragment() {
 
         manageRuleViewModel.setRuleList()
 
-        val editAdapter = ManageRuleAdapter(manageRuleViewModel,
-            manageRuleViewModel.ruleListLiveData.value!!)
-
+        val editAdapter = ManageRuleAdapter1(manageRuleViewModel)
         binding.recyclerView.adapter = editAdapter
+
 
         // 禁用动画，页面更新时闪烁问题
         (binding.recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         // 添加分割线
-        binding.recyclerView.addItemDecoration(DividerItemDecoration(requireContext(),
-            DividerItemDecoration.VERTICAL))
+        binding.recyclerView.addItemDecoration(
+            DividerItemDecoration(
+                requireContext(),
+                DividerItemDecoration.VERTICAL
+            )
+        )
+
+        // 数据变化
+        manageRuleViewModel.ruleListLiveData.observe(viewLifecycleOwner, {
+            editAdapter.submitList(it)
+        })
 
         // 规则是否改变
         manageRuleViewModel.editChange.observe(viewLifecycleOwner, {
             if (it) {
                 manageRuleViewModel.editPosition.value?.let { position ->
-                    editAdapter.updateItem(manageRuleViewModel.ruleListLiveData.value!![position],
-                        position)
+                    editAdapter.updateItem(
+                        manageRuleViewModel.ruleListLiveData.value!![position],
+                        position
+                    )
                 }
             }
         })
 
-
+        // 分享、删除
         manageRuleViewModel.selectShareOrRemove.observe(viewLifecycleOwner, {
             when (it) {
-                REMOVE_SELECT_RULE -> {
-                    editAdapter.removeRuleList()
-                }
-                SHARE_SELECT_RULE -> {
-                    manageRuleViewModel.selectCheckbox.value = editAdapter.getCheckboxMap()
-                }
+                REMOVE_SELECT_RULE -> editAdapter.removeRuleList()
+                SHARE_SELECT_RULE -> manageRuleViewModel.selectCheckbox.value =
+                    editAdapter.getCheckboxMap()
             }
         })
 
+        // 全选、不选
         manageRuleViewModel.selectAllOrNor.observe(viewLifecycleOwner, {
             when (it) {
                 ALL_SELECT -> editAdapter.setCheckboxAll()

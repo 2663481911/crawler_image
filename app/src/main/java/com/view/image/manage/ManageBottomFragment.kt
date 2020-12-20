@@ -1,6 +1,8 @@
 package com.view.image.manage
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -13,9 +15,11 @@ import com.view.image.R
 import com.view.image.analyzeRule.Rule
 import com.view.image.databinding.FragmentManageBottomBinding
 import com.view.image.fileUtil.RuleFile
-import com.view.image.manage.ManageRuleViewModel.Companion.ALL_SELECT
-import com.view.image.manage.ManageRuleViewModel.Companion.NOR_SELECT
 import com.view.image.prompt.PromptBox
+import com.view.image.setting.Setting.TAG
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class ManageBottomFragment : Fragment() {
@@ -38,12 +42,30 @@ class ManageBottomFragment : Fragment() {
             ViewModelProvider(activity ?: this).get(ManageRuleViewModel::class.java)
 
         binding.allSelect.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                manageRuleViewModel.selectAllOrNor.value = ALL_SELECT
-            } else {
-                manageRuleViewModel.selectAllOrNor.value = NOR_SELECT
+            when {
+                isChecked -> manageRuleViewModel.allSelect()
+                else -> manageRuleViewModel.norSelect()
             }
         }
+
+        // 选中数量
+        manageRuleViewModel.selectCheckBoxSize.observe(viewLifecycleOwner, {
+            Log.d(TAG, "onViewCreated: $it")
+            when (it) {
+                manageRuleViewModel.ruleListLiveData.value!!.size -> binding.allSelect.isChecked =
+                    true
+                else -> {
+                    manageRuleViewModel.partSelect()
+                    binding.allSelect.isChecked = false
+                }
+            }
+        })
+
+//        manageRuleViewModel.selectAllOrNor.observe(viewLifecycleOwner, {
+//            when (it) {
+//                PART_SELECT -> binding.allSelect.isChecked = false
+//            }
+//        })
 
         binding.menuGroup.setOnClickListener {
             // View当前PopupMenu显示的相对View的位置
@@ -78,15 +100,22 @@ class ManageBottomFragment : Fragment() {
     }
 
     // 分享选中规则
+    @SuppressLint("SimpleDateFormat")
     fun shareSelectRule() {
         val selectCheckbox = manageRuleViewModel.selectCheckbox.value
+        Log.d(TAG, "shareSelectRule: $selectCheckbox")
         val ruleList = ArrayList<Rule>()
         for (pos in selectCheckbox?.keys!!) {
             val rule = manageRuleViewModel.ruleListLiveData.value?.get(pos)
             rule?.let { ruleList.add(it) }
         }
+
+        val dateFormat = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss") //创建一个data format对象
+        val date2 = Date() //利用Date()获取当前时间
+        val name = dateFormat.format(date2) //格式化时间,并用String对象存储
+
         val ruListString = Gson().toJson(ruleList).toString()
-        val shareName = "share.rule"
+        val shareName = "$name$-${ruleList.size}.json"
         RuleFile.saveFile(requireContext(), ruListString, shareName)
         RuleFile.shareRule(requireContext(), shareName)
     }
