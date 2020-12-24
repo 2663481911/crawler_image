@@ -2,6 +2,7 @@ package com.view.image.home
 
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.view.image.databinding.FragmentHomeDataShowBinding
 import com.view.image.page.PageActivity
+import com.view.image.setting.Setting.TAG
 
 class HomeDataShowFragment : Fragment() {
     lateinit var fragmentBinding: FragmentHomeDataShowBinding
@@ -27,6 +29,7 @@ class HomeDataShowFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val homeDataShowAdapter = HomeDataShowAdapter()
 //        val layoutManager = GridLayoutManager(requireContext(), 2)
         val layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
@@ -76,7 +79,8 @@ class HomeDataShowFragment : Fragment() {
         })
 
         // 第一次加载数据
-        homeDataViewModel.dataUrl.observe(this.viewLifecycleOwner, {
+        homeDataViewModel.curReqName.observe(this.viewLifecycleOwner, {
+            Log.d(TAG, "onViewCreated: $it")
             homeDataViewModel.clearImageUrl()
             homeDataViewModel.isRefresh = true
             homeDataViewModel.setPageNum(1)
@@ -90,7 +94,8 @@ class HomeDataShowFragment : Fragment() {
 
         homeDataViewModel.pageNum.observe(this.viewLifecycleOwner, {
             if (homeDataViewModel.dataStatusLive.value != DATA_STATUS_NOR_MORE)
-                homeDataViewModel.getHomeDataList()
+                Log.d(TAG, "onViewCreated: $it")
+            homeDataViewModel.getHomeDataList()
         })
 
         // 下拉刷新

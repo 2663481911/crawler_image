@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
     tools:context=".debug.DebugActivity">
 
     <LinearLayout
@@ -25,8 +24,7 @@
             <TextView
                 android:id="@+id/tab"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/purple_200" />
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 
@@ -43,8 +41,7 @@
             <TextView
                 android:id="@+id/home_req_href"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/purple_200" />
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 
@@ -62,8 +59,7 @@
                 android:id="@+id/home_list"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="40"
-                android:textColor="@color/purple_200" />
+                android:maxLines="40" />
 
         </LinearLayout>
 
@@ -82,8 +78,7 @@
                 android:id="@+id/home_href"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="40"
-                android:textColor="@color/purple_200" />
+                android:maxLines="40" />
 
         </LinearLayout>
 
@@ -101,8 +96,7 @@
                 android:id="@+id/home_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="40"
-                android:textColor="@color/purple_200" />
+                android:maxLines="40" />
 
         </LinearLayout>
 
@@ -120,8 +114,7 @@
                 android:id="@+id/home_src"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="40"
-                android:textColor="@color/purple_200" />
+                android:maxLines="40" />
 
         </LinearLayout>
 
@@ -139,8 +132,7 @@
                 android:id="@+id/image_list"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="40"
-                android:textColor="@color/purple_200" />
+                android:maxLines="40" />
 
         </LinearLayout>
 
@@ -159,8 +151,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
-                android:maxLines="40"
-                android:textColor="@color/purple_200" />
+                android:maxLines="40" />
 
         </LinearLayout>
     </LinearLayout>

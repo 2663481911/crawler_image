@@ -2,36 +2,32 @@
     <!-- Base application theme. -->
     <style name="Theme.Image" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/background</item>  <!-- Toolbar的背景颜色  -->
-        <item name="colorPrimaryVariant">@color/background</item>
-        <item name="colorOnPrimary">@color/background</item>
+        <item name="colorPrimary">@color/default_background</item>  <!-- Toolbar的背景颜色  -->
+        <item name="colorPrimaryVariant">@color/default_background</item>
+        <item name="colorOnPrimary">@color/default_background</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">#5F7C8A</item>
-        <item name="colorSecondaryVariant">#33ABBA</item>
-        <item name="colorOnSecondary">#49839F</item>
+        <item name="colorSecondaryVariant">@color/black</item>
+        <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="android:windowBackground">@color/default_background</item>
+        <!--        <item name="android:background">@color/default_background</item>-->
+        <!--        控件背景颜色   -->
+        <!--        <item name="backgroundTint">@color/default_background</item>-->
+        <item name="android:textColorSecondary">@color/black</item>
+        <item name="actionMenuTextColor">@color/black</item>
     </style>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
-        <!--导航栏底色-->
-        <item name="colorPrimary">#f61d1f1f</item>
-        <!--状态栏底色-->
-        <item name="colorPrimaryDark">#0a0909</item>
-        <!--导航栏上的标题颜色,这里的颜色还可以自己定义喜欢的类型-->
-        <item name="android:textColorPrimary">#fff</item>
-        <!--Activity窗口的颜色,注意：这个颜色值要通过color属性引进来-->
-        <item name="android:windowBackground">@color/background</item>
-        <!--按钮选中或者点击获得焦点后的颜色-->
-        <item name="colorAccent">#00ff00</item>
-        <!--和 colorAccent相反，正常状态下按钮的颜色,如果我们的colorPrimary是深色，一般设置这里为白色-->
-        <item name="colorControlNormal">@color/background</item>
-        <!--Button按钮正常状态颜色,根据项目来定义-->
-        <item name="colorButtonNormal">@color/accent_material_light</item>
-        <!--EditText 输入框中字体的颜色，colorPrimary如果设置深色，一般字体设置为白色-->
-        <item name="editTextColor">@android:color/white</item>
+    <style name="ToolbarPopupTheme" parent="@style/ThemeOverlay.AppCompat.Dark">
+        <!--<item name="android:colorBackground">#000000</item> 也可以设置背景色以及menu中的其他属性-->
+        <item name="actionOverflowMenuStyle">@style/OverflowMenuStyle</item>
     </style>
+
+    <style name="OverflowMenuStyle" parent="Widget.AppCompat.Light.PopupMenu.Overflow">
+        <item name="overlapAnchor">false</item>  <!--设置不覆盖锚点-->
+    </style>
+
+
 </resources>

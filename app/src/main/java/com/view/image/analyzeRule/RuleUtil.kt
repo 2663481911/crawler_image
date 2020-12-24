@@ -4,6 +4,7 @@ import android.util.Log
 import com.view.image.analyzeRule.RuleType.*
 import com.view.image.home.HomeData
 import com.view.image.model.NetWork
+import com.view.image.setting.Setting.TAG
 import okhttp3.Call
 import okhttp3.Response
 import org.jsoup.Jsoup
@@ -31,13 +32,17 @@ enum class RuleType {
     "RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS"
 )
 class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
-    private var engine: ScriptEngine? = null
-        get() {
-            if (field == null) {
-                field = ScriptEngineManager().getEngineByName("ECMAScript")
+
+    companion object {
+        private var engine: ScriptEngine? = null
+            get() {
+                if (field == null) {
+                    field = ScriptEngineManager().getEngineByName("ECMAScript")
+                }
+                return field
             }
-            return field
-        }
+    }
+
 
     /**
      * 规则是什么类型,
@@ -105,19 +110,6 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
         return sortMap
     }
 
-    private fun replaceTagHref(href: String): String {
-        if (rule.tabReplace == "") {
-            return href
-        } else {
-            engine?.let {
-                it.put("href", href)
-                it.eval(rule.tabReplace)
-                return it.get("href").toString()
-            }
-        }
-        return href
-    }
-
 
     fun getCharset(): String {
         if (rule.charset == "")
@@ -141,36 +133,65 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
 
     private fun addJs() {
         if (rule.js != "") {
-            NetWork.get(rule.js, rule, object : NetWork.NetWorkCall {
-                override fun onFailure(call: Call, e: IOException) {
-                    engine?.put("js", "-1")
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    val jsStr = String(response.body!!.bytes(), Charset.forName(getCharset()))
-                    engine?.let {
-                        it.eval(jsStr)
-                        it.put("js", "1")
+            engine?.let {
+                NetWork.get(rule.js, rule, object : NetWork.NetWorkCall {
+                    override fun onFailure(call: Call, e: IOException) {
+                        engine?.put("js", "-1")
                     }
-                }
 
-            })
+                    override fun onResponse(call: Call, response: Response) {
+                        val jsStr = String(response.body!!.bytes(), Charset.forName(getCharset()))
+                        engine?.let {
+                            it.eval(jsStr)
+                            it.put("js", rule.js)
+                        }
+                    }
+
+                })
+            }
+
+        } else {
+
         }
+    }
+
+    /**
+     * 根据名称获取请求地址
+     * @param name 分类名称
+     * @param page 页码
+     */
+    fun getUrl(name: String, page: Int): String {
+        sortMap[name]?.let {
+            val hrefList = getIndexHref(it)
+            if (hrefList.size == 2) {
+                val href = if (page == 1)
+                    hrefList[0].replace("@page", page.toString())
+                else {
+                    hrefList[1].replace("@page", page.toString())
+                }
+                setRequestUrl(href)
+                return href
+            }
+        }
+        return ""
     }
 
 
     /**
      *  获取下一页请求的data
-     * @param url 请求地址
+     * @param name 分类名称
      * @param page 请求页码
      */
-    fun getNewData(url: String, page: Int): String {
-        val data = getDataToUrl(url)
+    fun getNewData(name: String, page: Int): String {
+        val data = getDataFromName(name)
         val jsStr = rule.jsMethod
         if (rule.js != "") {
-            while (engine!!["js"] == null) {
-                //等待js加载完成
+            engine?.let {
+                while (it["js"] == null) {
+                    //等待js加载完成
+                }
             }
+
             if (engine!!.get("js") == "-1") {
                 return ""
             }
@@ -185,16 +206,19 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
 
     /**
      * 根据请求地址获取data
-     * @param url 请求地址
+     * @param name 请求名称
      */
-    private fun getDataToUrl(url: String): String {
+    private fun getDataFromName(name: String): String {
         for (sort in rule.sortUrl.split("\n")) {
             sort.split("::", limit = 2).also { sortList ->
                 if (sortList.size == 2)
-                    sortList[1].split(",", limit = 2).also {
-                        if (it.size == 2 && it[0] == url)
-                            return it[1]
+                    Log.d(TAG, "getDataToUrl: ${sortList[0]},$name")
+                sortList[1].split(",", limit = 2).also {
+                    if (it.size == 2 && sortList[0].trim() == name) {
+                        Log.d(TAG, "getDataToUrl: ${it[1]}")
+                        return it[1]
                     }
+                }
             }
         }
         return ""
@@ -264,6 +288,20 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
     }
 
 
+    private fun replaceTagHref(href: String): String {
+        if (rule.tabReplace == "") {
+            return href
+        } else {
+            engine?.let {
+                it.put("href", href)
+                it.eval(rule.tabReplace)
+                return it.get("href").toString()
+            }
+        }
+        return href
+    }
+
+
     private fun analyzeResult(result: Any?): List<*> {
         return when (result) {
             is String -> result.split(",")
@@ -303,19 +341,17 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
             }
         }
 
-        val homeHrefDataList = analyzeResult(getDataList(rule.homeHref, homeList))
-        val homeSrcDataList = analyzeResult(getDataList(rule.homeSrc, homeList))
-        val homeTitleDataList = analyzeResult(getDataList(rule.homeTitle, homeList))
+        val homeHrefDataList = analyzeResult(getHomeHref(homeList))
+        val homeSrcDataList = analyzeResult(getHomeSrc(homeList))
+        val homeTitleDataList = analyzeResult(getHomeTitle(homeList))
         val homeDataList: ArrayList<HomeData> = ArrayList()
         if (homeHrefDataList.size == homeSrcDataList.size && homeSrcDataList.size == homeTitleDataList.size) {
             for (i in homeHrefDataList.indices) {
                 homeSrcDataList[i].toString().let {
                     val imgSrc =
                         when {
-                            rule.homeSrcReplaceByJS.isNotEmpty() -> imgSrcReplaceByJS(
-                                rule.imageUrlReplaceByJS,
-                                it
-                            )
+                            rule.homeSrcReplaceByJS.isNotEmpty() ->
+                                imgSrcReplaceByJS(rule.imageUrlReplaceByJS, it)
                             else -> it
                         }
                     val homeDAta =
@@ -379,7 +415,7 @@ class RuleUtil(val rule: Rule, private val analyzeRuleDao: AnalyzeRuleDao) {
     /**
      * 获取第一次请求的地址
      */
-    fun getIndexHref(href: String): List<String> {
+    private fun getIndexHref(href: String): List<String> {
         val regex = "<(.*),(.*)>"
         val pattern = Pattern.compile(regex)
         val matcher = pattern.matcher(href)

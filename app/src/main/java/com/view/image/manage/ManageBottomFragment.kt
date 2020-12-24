@@ -61,11 +61,6 @@ class ManageBottomFragment : Fragment() {
             }
         })
 
-//        manageRuleViewModel.selectAllOrNor.observe(viewLifecycleOwner, {
-//            when (it) {
-//                PART_SELECT -> binding.allSelect.isChecked = false
-//            }
-//        })
 
         binding.menuGroup.setOnClickListener {
             // View当前PopupMenu显示的相对View的位置

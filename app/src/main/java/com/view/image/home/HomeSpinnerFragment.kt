@@ -13,15 +13,15 @@ import com.view.image.databinding.FragmentHomeSpinnerBinding
 
 
 class HomeSpinnerFragment : Fragment() {
-    lateinit var homeSpinnerBinding: FragmentHomeSpinnerBinding
+    lateinit var binding: FragmentHomeSpinnerBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
         // Inflate the layout for this fragment
-        homeSpinnerBinding = FragmentHomeSpinnerBinding.inflate(layoutInflater)
-        return homeSpinnerBinding.root
+        binding = FragmentHomeSpinnerBinding.inflate(layoutInflater)
+        return binding.root
     }
 
 
@@ -35,12 +35,12 @@ class HomeSpinnerFragment : Fragment() {
 
         // 观察页码的变化，请求数据
         homeDataViewModel.pageNum.observe(this.viewLifecycleOwner, {
-            homeSpinnerBinding.setPageNum.setText(it.toString())
+            binding.setPageNum.setText(it.toString())
         })
 
         // 设置页码
-        homeSpinnerBinding.setPageNum.setOnEditorActionListener { it, _, _ ->
-            val page = homeSpinnerBinding.setPageNum.text.toString().toInt()
+        binding.setPageNum.setOnEditorActionListener { it, _, _ ->
+            val page = binding.setPageNum.text.toString().toInt()
             if (homeDataViewModel.pageNum.value != page) {
                 homeDataViewModel.isRefresh = true
                 homeDataViewModel.setPageNum(page)
@@ -61,9 +61,10 @@ class HomeSpinnerFragment : Fragment() {
         homeDataViewModel.sortMap.observe(this.viewLifecycleOwner, {
             val sortNameList = homeDataViewModel.getSortNameList()
             updateSpinner(sortNameList!!.toList())
+//            homeDataViewModel.setUrl(sortNameList[0])
         })
 
-        homeSpinnerBinding.spinnerView.onItemSelectedListener =
+        binding.spinnerView.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
                     parent: AdapterView<*>?,
@@ -86,7 +87,7 @@ class HomeSpinnerFragment : Fragment() {
             android.R.layout.simple_spinner_item,
             sortNameList)
         arrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)
-        homeSpinnerBinding.spinnerView.adapter = arrayAdapter
+        binding.spinnerView.adapter = arrayAdapter
     }
 
 }

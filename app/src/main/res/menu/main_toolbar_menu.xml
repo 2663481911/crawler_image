@@ -28,11 +28,6 @@
         app:showAsAction="withText" />
 
     <item
-        android:id="@+id/save_pos"
-        android:title="@string/save_pos"
-        app:showAsAction="withText" />
-
-    <item
         android:id="@+id/edit_rule"
         android:icon="@android:drawable/ic_menu_add"
         android:title="@string/manage_rule" />
